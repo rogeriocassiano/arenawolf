@@ -163,7 +163,7 @@ export default async function DashboardPage() {
                 }`}>{ev.type === "campeonato" ? "Campeonato" : ev.type === "corujao" ? "Corujão" : "Evento"}</span>
                 <p className="text-sm font-[family-name:var(--font-orbitron)] font-bold text-wolf-white leading-snug line-clamp-1">{ev.title}</p>
                 <p className="text-xs text-wolf-muted">{formatDateTime(ev.start_at)}</p>
-                {ev.price > 0 && <p className="text-xs text-emerald-400 font-semibold">{formatCurrency(ev.price * 100)}</p>}
+                {ev.price > 0 && <p className="text-xs text-emerald-400 font-semibold">{formatCurrency(Math.round(ev.price * 100))}</p>}
                 {ev.price === 0 && <p className="text-xs text-emerald-400 font-semibold">Gratuito</p>}
               </Link>
             ))}

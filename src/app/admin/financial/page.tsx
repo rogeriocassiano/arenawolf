@@ -16,12 +16,14 @@ export default async function AdminFinancialPage() {
 
   const list = transactions ?? [];
 
-  const purchases = list.filter((t) => t.type === "credit_purchase");
-  const reservations = list.filter((t) => t.type === "reservation");
+  const purchases = list.filter((t) => t.type === "credit_purchase" || t.type === "credit_add");
+  const requests = list.filter((t) => t.type === "credit_request");
+  const sessions = list.filter((t) => t.type === "session_end" || t.type === "reservation");
   const refunds = list.filter((t) => t.type === "refund");
 
   const totalCredits = purchases.reduce((s: number, t: { amount: number }) => s + Math.abs(t.amount), 0);
-  const totalUsed = reservations.reduce((s: number, t: { amount: number }) => s + Math.abs(t.amount), 0);
+  const totalRequests = requests.reduce((s: number, t: { amount: number }) => s + Math.abs(t.amount), 0);
+  const totalUsed = sessions.reduce((s: number, t: { amount: number }) => s + Math.abs(t.amount), 0);
   const totalRefunded = refunds.reduce((s: number, t: { amount: number }) => s + Math.abs(t.amount), 0);
 
   return (
@@ -35,10 +37,10 @@ export default async function AdminFinancialPage() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: DollarSign, label: "Créditos Vendidos", value: formatMinutes(totalCredits), color: "text-emerald-400", border: "border-emerald-500/20" },
-          { icon: Clock, label: "Créditos Usados", value: formatMinutes(totalUsed), color: "text-wolf-blue-light", border: "border-wolf-blue/20" },
-          { icon: TrendingUp, label: "Estornos", value: formatMinutes(totalRefunded), color: "text-wolf-amber", border: "border-wolf-amber/20" },
-          { icon: CreditCard, label: "Transações", value: list.length, color: "text-purple-400", border: "border-purple-500/20" },
+          { icon: DollarSign, label: "Créditos Adicionados", value: formatMinutes(totalCredits), color: "text-emerald-400", border: "border-emerald-500/20" },
+          { icon: TrendingUp, label: "Solicitações Balcão", value: formatMinutes(totalRequests), color: "text-wolf-amber", border: "border-wolf-amber/20" },
+          { icon: Clock, label: "Créditos Consumidos", value: formatMinutes(totalUsed), color: "text-wolf-blue-light", border: "border-wolf-blue/20" },
+          { icon: CreditCard, label: "Total Transações", value: list.length, color: "text-purple-400", border: "border-purple-500/20" },
         ].map(({ icon: Icon, label, value, color, border }) => (
           <Card key={label} className={border}>
             <CardContent className="p-4">

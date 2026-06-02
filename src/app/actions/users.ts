@@ -50,13 +50,20 @@ export async function updateUserRole(userId: string, role: string) {
 }
 
 export async function addCredits(userId: string, minutes: number) {
-  await requireAdmin();
+  const { user } = await requireAdmin();
   const admin = await createAdminClient();
   const { data: profile } = await admin.from("profiles").select("credits_minutes").eq("id", userId).single();
   const current = profile?.credits_minutes ?? 0;
   const { error } = await admin.from("profiles").update({ credits_minutes: current + minutes }).eq("id", userId);
   if (error) return { error: error.message };
+  await admin.from("transactions").insert({
+    user_id: userId,
+    type: "credit_add",
+    amount: minutes,
+    description: `Créditos adicionados manualmente pelo operador (${user.id})`,
+  });
   revalidatePath("/admin/users");
+  revalidatePath("/admin/financial");
   return { success: true };
 }
 

@@ -142,7 +142,7 @@ export async function loginWithCredentials(
       body: JSON.stringify({
         machine_id: cfg.machineId,
         user_id: userId,
-        minutes: profile.credits_minutes,
+        minutes: Math.min(profile.credits_minutes, 240), // máx 4h por sessão
       }),
     });
     const data = await res.json();

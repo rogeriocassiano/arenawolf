@@ -8,7 +8,6 @@ export default async function UserLayout({ children }: { children: React.ReactNo
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
-  console.log("[USER_LAYOUT] user detected:", !!user, "id:", user?.id);
   if (!user) redirect("/login");
 
   const { data: profile } = await supabase
