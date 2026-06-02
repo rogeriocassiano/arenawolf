@@ -111,9 +111,6 @@ INSERT INTO public.events (title, type, description, start_at, end_at, price, ma
 ON CONFLICT DO NOTHING;
 
 -- 14. Seed de promoção de exemplo
--- Garantir que discount_type não seja NOT NULL ou tem default
-ALTER TABLE public.promotions ALTER COLUMN discount_type SET DEFAULT 'discount_fixed';
-
-INSERT INTO public.promotions (title, description, type, discount_type, discount_value, active, valid_until) VALUES
-  ('Desconto Corujão', 'R$2 de desconto na hora entre 22h e 6h nos finais de semana!', 'discount_fixed', 'discount_fixed', 2.00, TRUE, (NOW() + INTERVAL '30 days')::DATE)
+INSERT INTO public.promotions (title, description, discount_type, value, valid_from, valid_until, active) VALUES
+  ('Desconto Corujão', 'R$2 de desconto na hora entre 22h e 6h nos finais de semana!', 'fixed', 2.00, NOW(), NOW() + INTERVAL '30 days', TRUE)
 ON CONFLICT DO NOTHING;
