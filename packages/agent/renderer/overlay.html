@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Arena Wolf — Sessão</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap');
+
+    body {
+      background: transparent;
+      font-family: 'Rajdhani', sans-serif;
+      -webkit-app-region: no-drag;
+      overflow: hidden;
+    }
+
+    .widget {
+      background: rgba(10, 12, 16, 0.88);
+      border: 1px solid rgba(29,111,237,0.35);
+      border-radius: 1rem;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 0 1px rgba(29,111,237,0.1);
+      min-width: 200px;
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .brand {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 900;
+      color: #5b9cf6;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    .status-dot.warning { background: #f59e0b; }
+    .status-dot.critical { background: #ef4444; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 currentColor; }
+      50% { opacity: 0.7; }
+    }
+
+    .timer {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #10b981;
+      letter-spacing: 0.05em;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .timer.warning { color: #f59e0b; }
+    .timer.critical { color: #ef4444; animation: blink 0.5s step-end infinite; }
+
+    @keyframes blink { 50% { opacity: 0.5; } }
+
+    .nickname {
+      font-size: 0.75rem;
+      color: rgba(240,244,255,0.6);
+      font-weight: 500;
+    }
+
+    .end-btn {
+      width: 100%;
+      margin-top: 0.25rem;
+      padding: 0.35rem;
+      background: rgba(230,57,70,0.15);
+      border: 1px solid rgba(230,57,70,0.3);
+      border-radius: 0.5rem;
+      color: #ef4444;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      -webkit-app-region: no-drag;
+      pointer-events: all;
+      transition: background 0.15s;
+    }
+
+    .end-btn:hover { background: rgba(230,57,70,0.28); }
+  </style>
+</head>
+<body>
+  <div class="widget">
+    <div class="top-row">
+      <span class="brand">Arena Wolf</span>
+      <div class="status-dot" id="dot"></div>
+    </div>
+    <div class="timer" id="timer">--:--</div>
+    <div class="nickname" id="nickname">Sessão ativa</div>
+    <button class="end-btn" id="endBtn" onclick="endSession()">■ Encerrar sessão</button>
+  </div>
+
+  <script>
+    const timerEl = document.getElementById('timer');
+    const dotEl = document.getElementById('dot');
+    const nicknameEl = document.getElementById('nickname');
+
+    window.agent.onTick(({ remaining, session }) => {
+      const h = Math.floor(remaining / 3600);
+      const m = Math.floor((remaining % 3600) / 60);
+      const s = remaining % 60;
+
+      const timeStr = h > 0
+        ? `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+        : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+      timerEl.textContent = timeStr;
+
+      const isCritical = remaining < 120;
+      const isWarning = remaining < 600;
+
+      timerEl.className = 'timer' + (isCritical ? ' critical' : isWarning ? ' warning' : '');
+      dotEl.className = 'status-dot' + (isCritical ? ' critical' : isWarning ? ' warning' : '');
+
+      if (session && session.nickname) {
+        nicknameEl.textContent = session.nickname;
+      }
+    });
+
+    async function endSession() {
+      if (!confirm('Encerrar sua sessão agora?')) return;
+      await window.agent.endSession();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arena Wolf — Bloqueado</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap');
+
+    :root {
+      --wolf-bg: #0a0c10;
+      --wolf-surface: #0f1218;
+      --wolf-blue: #1d6fed;
+      --wolf-blue-light: #5b9cf6;
+      --wolf-red: #e63946;
+      --wolf-amber: #f59e0b;
+      --wolf-white: #f0f4ff;
+      --wolf-muted: #5a6478;
+    }
+
+    body {
+      background: var(--wolf-bg);
+      color: var(--wolf-white);
+      font-family: 'Rajdhani', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Background glow */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(29,111,237,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      color: var(--wolf-white);
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .logo span { color: var(--wolf-blue-light); }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--wolf-muted);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 3rem;
+    }
+
+    .card {
+      background: var(--wolf-surface);
+      border: 1px solid rgba(29,111,237,0.25);
+      border-radius: 1.25rem;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      box-shadow: 0 0 60px rgba(29,111,237,0.08);
+    }
+
+    .card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--wolf-white);
+      text-align: center;
+      letter-spacing: 0.08em;
+    }
+
+    .pin-inputs {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .pin-digit {
+      width: 52px;
+      height: 64px;
+      background: #161b24;
+      border: 2px solid rgba(29,111,237,0.25);
+      border-radius: 0.75rem;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 900;
+      color: var(--wolf-white);
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      caret-color: var(--wolf-blue-light);
+    }
+
+    .pin-digit:focus {
+      border-color: var(--wolf-blue);
+      box-shadow: 0 0 0 3px rgba(29,111,237,0.2);
+    }
+
+    .pin-digit.filled {
+      border-color: rgba(91,156,246,0.5);
+      color: var(--wolf-blue-light);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.875rem;
+      background: var(--wolf-blue);
+      border: none;
+      border-radius: 0.75rem;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn:hover { background: #1a5fd4; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { background: var(--wolf-muted); cursor: not-allowed; transform: none; }
+
+    .btn.loading::after {
+      content: '';
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-msg {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(230,57,70,0.1);
+      border: 1px solid rgba(230,57,70,0.3);
+      border-radius: 0.625rem;
+      color: var(--wolf-red);
+      font-size: 0.875rem;
+      text-align: center;
+      display: none;
+    }
+
+    .error-msg.visible { display: block; }
+
+    .success-msg {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 0.625rem;
+      color: #34d399;
+      font-size: 0.875rem;
+      text-align: center;
+      display: none;
+    }
+
+    .success-msg.visible { display: block; }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--wolf-muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .hint a {
+      color: var(--wolf-blue-light);
+      text-decoration: none;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+      animation: pulse 2s infinite;
+      position: fixed;
+      top: 1.25rem;
+      right: 1.25rem;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+  </style>
+</head>
+<body>
+  <div class="status-dot" id="statusDot"></div>
+
+  <div class="logo">ARENA <span>WOLF</span></div>
+  <p class="subtitle">Lan House Premium · BH</p>
+
+  <div class="card">
+    <p class="card-title">Digite seu PIN para começar</p>
+
+    <div class="pin-inputs" id="pinInputs">
+      <input class="pin-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="d0" />
+      <input class="pin-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="d1" />
+      <input class="pin-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="d2" />
+      <input class="pin-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="d3" />
+      <input class="pin-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="d4" />
+      <input class="pin-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="d5" />
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="success-msg" id="successMsg"></div>
+
+    <button class="btn" id="submitBtn" disabled>ENTRAR</button>
+
+    <p class="hint">
+      Gere seu PIN em <strong>arenawolf.netlify.app</strong><br/>
+      na seção <strong>"Usar PC"</strong> do seu perfil.
+    </p>
+  </div>
+
+  <script>
+    const digits = Array.from({ length: 6 }, (_, i) => document.getElementById(`d${i}`));
+    const submitBtn = document.getElementById('submitBtn');
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
+
+    function getPin() { return digits.map(d => d.value).join(''); }
+
+    function updateSubmitState() {
+      const pin = getPin();
+      submitBtn.disabled = pin.length < 6;
+      digits.forEach((d, i) => {
+        d.classList.toggle('filled', d.value.length === 1);
+      });
+    }
+
+    digits.forEach((input, idx) => {
+      input.addEventListener('input', (e) => {
+        const val = e.target.value.replace(/[^0-9]/g, '');
+        input.value = val.slice(-1);
+        if (val && idx < 5) digits[idx + 1].focus();
+        updateSubmitState();
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && idx > 0) {
+          digits[idx - 1].focus();
+          digits[idx - 1].value = '';
+          updateSubmitState();
+        }
+        if (e.key === 'Enter') submitPin();
+      });
+
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pasted = (e.clipboardData.getData('text') || '').replace(/[^0-9]/g, '').slice(0, 6);
+        pasted.split('').forEach((char, i) => {
+          if (digits[i]) digits[i].value = char;
+        });
+        const nextEmpty = digits.findIndex(d => !d.value);
+        (nextEmpty >= 0 ? digits[nextEmpty] : digits[5]).focus();
+        updateSubmitState();
+      });
+    });
+
+    digits[0].focus();
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.classList.add('visible');
+      successMsg.classList.remove('visible');
+      digits.forEach(d => { d.value = ''; d.classList.remove('filled'); });
+      digits[0].focus();
+      updateSubmitState();
+    }
+
+    function showSuccess(nickname) {
+      successMsg.textContent = `✓ Bem-vindo, ${nickname}! Iniciando sua sessão...`;
+      successMsg.classList.add('visible');
+      errorMsg.classList.remove('visible');
+    }
+
+    async function submitPin() {
+      const pin = getPin();
+      if (pin.length < 6) return;
+
+      submitBtn.classList.add('loading');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '';
+      errorMsg.classList.remove('visible');
+
+      try {
+        const result = await window.agent.submitPin(pin);
+        if (result.ok) {
+          showSuccess(result.nickname);
+        } else {
+          showError(result.error || 'PIN inválido. Tente novamente.');
+        }
+      } catch (err) {
+        showError('Erro de conexão. Verifique a internet.');
+      } finally {
+        submitBtn.classList.remove('loading');
+        submitBtn.textContent = 'ENTRAR';
+        updateSubmitState();
+      }
+    }
+
+    submitBtn.addEventListener('click', submitPin);
+  </script>
+</body>
+</html>

@@ -17,6 +17,7 @@ import {
   Megaphone,
   LogOut,
   ChevronRight,
+  Gamepad2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/actions/auth";
@@ -27,6 +28,7 @@ const navGroups = [
     label: "Operacional",
     items: [
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+      { href: "/admin/operator", label: "Painel Operador", icon: Gamepad2 },
       { href: "/admin/machines", label: "Máquinas", icon: Monitor },
       { href: "/admin/reservations", label: "Reservas", icon: CalendarClock },
       { href: "/admin/users", label: "Usuários", icon: Users },

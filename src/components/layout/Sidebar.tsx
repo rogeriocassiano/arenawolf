@@ -13,12 +13,14 @@ import {
   LogOut,
   Sword,
   Tag,
+  Gamepad2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/actions/auth";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/session", label: "Usar PC", icon: Gamepad2 },
   { href: "/machines", label: "Máquinas", icon: Monitor },
   { href: "/reservations", label: "Reservas", icon: CalendarClock },
   { href: "/store", label: "Loja", icon: ShoppingBag },

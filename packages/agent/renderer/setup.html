@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Arena Wolf Agent — Configuração</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0c10; color: #f0f4ff;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem;
+      min-height: 100vh;
+    }
+    h1 { font-size: 1.25rem; font-weight: 700; color: #5b9cf6; }
+    p.sub { font-size: 0.85rem; color: #5a6478; }
+    .field { display: flex; flex-direction: column; gap: 0.4rem; }
+    label { font-size: 0.8rem; color: #5a6478; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+    input {
+      padding: 0.625rem 0.875rem;
+      background: #0f1218; border: 1px solid rgba(29,111,237,0.25);
+      border-radius: 0.5rem; color: #f0f4ff; font-size: 0.9rem; outline: none;
+    }
+    input:focus { border-color: #1d6fed; box-shadow: 0 0 0 2px rgba(29,111,237,0.2); }
+    button {
+      padding: 0.75rem; background: #1d6fed; border: none; border-radius: 0.625rem;
+      color: white; font-size: 0.9rem; font-weight: 700; cursor: pointer; margin-top: 0.5rem;
+    }
+    button:hover { background: #1a5fd4; }
+    .msg { padding: 0.75rem; border-radius: 0.5rem; font-size: 0.875rem; display: none; }
+    .msg.ok { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #34d399; display: block; }
+    .msg.err { background: rgba(230,57,70,0.1); border: 1px solid rgba(230,57,70,0.3); color: #ef4444; display: block; }
+    .hint { font-size: 0.78rem; color: #5a6478; background: #0f1218; border: 1px solid rgba(255,255,255,0.06); border-radius: 0.5rem; padding: 0.75rem; line-height: 1.6; }
+    .hint strong { color: #5b9cf6; }
+  </style>
+</head>
+<body>
+  <div>
+    <h1>Arena Wolf Agent</h1>
+    <p class="sub">Configuração inicial — preencha uma vez por máquina</p>
+  </div>
+
+  <div class="hint">
+    <strong>Como obter os valores:</strong><br/>
+    1. Acesse o painel admin em <strong>arenawolf.netlify.app/admin/machines</strong><br/>
+    2. Copie o <strong>ID da máquina</strong> que este PC representa<br/>
+    3. Copie a <strong>Service Role Key</strong> do painel Supabase → Settings → API
+  </div>
+
+  <div class="field">
+    <label>ID da Máquina (UUID)</label>
+    <input id="machineId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+  </div>
+  <div class="field">
+    <label>Nome da Máquina</label>
+    <input id="machineName" placeholder="Wolf 01" />
+  </div>
+  <div class="field">
+    <label>Supabase URL</label>
+    <input id="supabaseUrl" placeholder="https://xxx.supabase.co" />
+  </div>
+  <div class="field">
+    <label>Supabase Anon Key</label>
+    <input id="supabaseKey" type="password" placeholder="eyJ..." />
+  </div>
+  <div class="field">
+    <label>Agent Key (Service Role Key)</label>
+    <input id="agentKey" type="password" placeholder="eyJ..." />
+  </div>
+  <div class="field">
+    <label>URL do Site (para API)</label>
+    <input id="apiBaseUrl" value="https://arenawold.netlify.app" />
+  </div>
+
+  <div class="msg" id="msg"></div>
+  <button onclick="saveConfig()">Salvar e Iniciar</button>
+
+  <script>
+    window.agent.getConfig().then(cfg => {
+      if (cfg.machineId) document.getElementById('machineId').value = cfg.machineId;
+      if (cfg.machineName) document.getElementById('machineName').value = cfg.machineName;
+      if (cfg.supabaseUrl) document.getElementById('supabaseUrl').value = cfg.supabaseUrl;
+      if (cfg.supabaseKey) document.getElementById('supabaseKey').value = cfg.supabaseKey;
+      if (cfg.agentKey) document.getElementById('agentKey').value = cfg.agentKey;
+      if (cfg.apiBaseUrl) document.getElementById('apiBaseUrl').value = cfg.apiBaseUrl;
+    });
+
+    async function saveConfig() {
+      const cfg = {
+        machineId: document.getElementById('machineId').value.trim(),
+        machineName: document.getElementById('machineName').value.trim(),
+        supabaseUrl: document.getElementById('supabaseUrl').value.trim(),
+        supabaseKey: document.getElementById('supabaseKey').value.trim(),
+        agentKey: document.getElementById('agentKey').value.trim(),
+        apiBaseUrl: document.getElementById('apiBaseUrl').value.trim(),
+      };
+      const msg = document.getElementById('msg');
+      if (!cfg.machineId || !cfg.supabaseKey) {
+        msg.className = 'msg err';
+        msg.textContent = 'Preencha pelo menos o ID da Máquina e a Supabase Key.';
+        return;
+      }
+      await window.agent.setConfig(cfg);
+      msg.className = 'msg ok';
+      msg.textContent = '✓ Configuração salva! Reinicie o agente.';
+    }
+  </script>
+</body>
+</html>
