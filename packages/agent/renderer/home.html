@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Arena Wolf — Launcher</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap');
+
+    :root {
+      --wolf-bg: #0a0c10;
+      --wolf-surface: #0f1218;
+      --wolf-surface2: #141820;
+      --wolf-blue: #1d6fed;
+      --wolf-blue-light: #5b9cf6;
+      --wolf-red: #e63946;
+      --wolf-amber: #f59e0b;
+      --wolf-green: #10b981;
+      --wolf-white: #f0f4ff;
+      --wolf-muted: #5a6478;
+    }
+
+    html, body {
+      width: 100vw; height: 100vh;
+      background: var(--wolf-bg);
+      color: var(--wolf-white);
+      font-family: 'Rajdhani', sans-serif;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* BG radial glow */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 15% 0%, rgba(29,111,237,0.1) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 100%, rgba(230,57,70,0.07) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      background: rgba(10,12,16,0.92);
+      border-bottom: 1px solid rgba(29,111,237,0.15);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 1rem; }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: var(--wolf-white);
+    }
+    .logo span { color: var(--wolf-blue-light); }
+
+    .session-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.875rem;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.25);
+      border-radius: 2rem;
+    }
+    .session-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--wolf-green); animation: pulse 2s infinite; }
+    @keyframes pulse { 50% { opacity: 0.5; } }
+
+    .session-nick {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--wolf-white);
+    }
+
+    .topbar-right { display: flex; align-items: center; gap: 1.25rem; }
+
+    .timer-widget {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      background: rgba(29,111,237,0.1);
+      border: 1px solid rgba(29,111,237,0.2);
+      border-radius: 2rem;
+    }
+
+    .timer-label { font-size: 0.7rem; color: var(--wolf-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .timer-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--wolf-green);
+      font-variant-numeric: tabular-nums;
+      min-width: 56px;
+    }
+    .timer-value.warning { color: var(--wolf-amber); animation: blink 1s step-end infinite; }
+    .timer-value.critical { color: var(--wolf-red); animation: blink 0.5s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0.4; } }
+
+    .end-btn {
+      padding: 0.4rem 1rem;
+      background: rgba(230,57,70,0.12);
+      border: 1px solid rgba(230,57,70,0.3);
+      border-radius: 2rem;
+      color: var(--wolf-red);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .end-btn:hover { background: rgba(230,57,70,0.25); }
+
+    /* MAIN CONTENT */
+    .main {
+      position: fixed;
+      top: 64px; left: 0; right: 0; bottom: 0;
+      overflow-y: auto;
+      padding: 2rem;
+      z-index: 1;
+    }
+
+    /* CATEGORY FILTER */
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.75rem;
+    }
+
+    .filter-chip {
+      padding: 0.35rem 0.875rem;
+      border-radius: 2rem;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      border: 1px solid rgba(29,111,237,0.2);
+      background: var(--wolf-surface);
+      color: var(--wolf-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-chip:hover { color: var(--wolf-white); border-color: rgba(29,111,237,0.4); }
+    .filter-chip.active {
+      background: var(--wolf-blue);
+      border-color: var(--wolf-blue);
+      color: white;
+    }
+
+    /* APPS GRID */
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--wolf-muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    .app-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.25rem 1rem;
+      background: var(--wolf-surface);
+      border: 1px solid rgba(29,111,237,0.12);
+      border-radius: 1rem;
+      cursor: pointer;
+      transition: all 0.18s;
+      overflow: hidden;
+    }
+
+    .app-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .app-card:hover {
+      border-color: rgba(29,111,237,0.45);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(29,111,237,0.15);
+    }
+
+    .app-card:hover::before { opacity: 0.08; }
+    .app-card:active { transform: translateY(-1px) scale(0.98); }
+
+    .app-card.launching {
+      border-color: rgba(16,185,129,0.5);
+      box-shadow: 0 0 20px rgba(16,185,129,0.2);
+    }
+
+    .app-icon {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 0.75rem;
+      position: relative;
+      z-index: 1;
+      background: var(--wolf-surface2);
+    }
+
+    .app-icon-placeholder {
+      width: 64px;
+      height: 64px;
+      background: var(--wolf-surface2);
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .app-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--wolf-white);
+      text-align: center;
+      line-height: 1.2;
+      position: relative;
+      z-index: 1;
+    }
+
+    .app-category {
+      font-size: 0.68rem;
+      color: var(--wolf-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .launching-badge {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: rgba(16,185,129,0.9);
+      color: white;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.25rem;
+      display: none;
+      z-index: 2;
+    }
+    .app-card.launching .launching-badge { display: block; }
+
+    /* EMPTY STATE */
+    .empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 4rem;
+      color: var(--wolf-muted);
+      text-align: center;
+    }
+    .empty-icon { font-size: 3rem; opacity: 0.4; }
+    .empty-title { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 700; }
+
+    /* CONFIRM MODAL */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-backdrop.visible { display: flex; }
+    .modal {
+      background: var(--wolf-surface);
+      border: 1px solid rgba(230,57,70,0.3);
+      border-radius: 1.25rem;
+      padding: 2rem;
+      max-width: 360px;
+      width: 90%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      text-align: center;
+    }
+    .modal-title { font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 700; color: var(--wolf-white); }
+    .modal-body { font-size: 0.9rem; color: var(--wolf-muted); line-height: 1.5; }
+    .modal-actions { display: flex; gap: 0.75rem; }
+    .modal-btn { flex: 1; padding: 0.75rem; border-radius: 0.75rem; font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; border: 1px solid; letter-spacing: 0.06em; transition: background 0.15s; }
+    .modal-btn-cancel { background: transparent; border-color: rgba(255,255,255,0.1); color: var(--wolf-muted); }
+    .modal-btn-cancel:hover { color: var(--wolf-white); border-color: rgba(255,255,255,0.2); }
+    .modal-btn-confirm { background: rgba(230,57,70,0.15); border-color: rgba(230,57,70,0.4); color: var(--wolf-red); }
+    .modal-btn-confirm:hover { background: rgba(230,57,70,0.3); }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo">ARENA <span>WOLF</span></div>
+      <div class="session-badge">
+        <div class="session-dot"></div>
+        <span class="session-nick" id="nickLabel">Carregando...</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="timer-widget">
+        <span class="timer-label">Tempo</span>
+        <span class="timer-value" id="timerEl">--:--</span>
+      </div>
+      <button class="end-btn" id="endBtn">■ Encerrar</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="main">
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-chip active" data-cat="Todos">Todos</button>
+    </div>
+    <div class="section-title">APPS DISPONÍVEIS</div>
+    <div class="apps-grid" id="appsGrid">
+      <div class="empty">
+        <div class="empty-icon">🎮</div>
+        <div class="empty-title">Carregando apps...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRM MODAL -->
+  <div class="modal-backdrop" id="endModal">
+    <div class="modal">
+      <div class="modal-title">Encerrar sessão?</div>
+      <div class="modal-body">Os créditos usados até agora serão descontados. O PC será bloqueado.</div>
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-cancel" id="modalCancel">Cancelar</button>
+        <button class="modal-btn modal-btn-confirm" id="modalConfirm">Encerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let allApps = [];
+    let activeCategory = 'Todos';
+    let endsAtMs = 0;
+    let timerInterval = null;
+
+    const CAT_EMOJI = {
+      Jogo: '🎮', Plataforma: '🚀', Navegador: '🌐', Utilitário: '🔧', Outro: '📦'
+    };
+
+    // Receber dados da sessão do main process
+    window.agent.onSessionData((data) => {
+      allApps = data.apps || [];
+      endsAtMs = new Date(data.endsAt).getTime();
+      document.getElementById('nickLabel').textContent = data.nickname || 'Jogador';
+      renderFilterBar();
+      renderApps('Todos');
+      startTimer();
+    });
+
+    // Timer countdown
+    function startTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(updateTimer, 1000);
+      updateTimer();
+    }
+
+    function updateTimer() {
+      const remaining = Math.max(0, Math.floor((endsAtMs - Date.now()) / 1000));
+      const h = Math.floor(remaining / 3600);
+      const m = Math.floor((remaining % 3600) / 60);
+      const s = remaining % 60;
+      const str = h > 0
+        ? `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+        : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      const el = document.getElementById('timerEl');
+      el.textContent = str;
+      el.className = 'timer-value' + (remaining < 120 ? ' critical' : remaining < 600 ? ' warning' : '');
+    }
+
+    // Filter bar
+    function renderFilterBar() {
+      const categories = ['Todos', ...new Set(allApps.map(a => a.category))];
+      const bar = document.getElementById('filterBar');
+      bar.innerHTML = '';
+      categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-chip' + (cat === activeCategory ? ' active' : '');
+        btn.dataset.cat = cat;
+        btn.textContent = cat;
+        btn.addEventListener('click', () => {
+          activeCategory = cat;
+          document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+          btn.classList.add('active');
+          renderApps(cat);
+        });
+        bar.appendChild(btn);
+      });
+    }
+
+    // Apps grid
+    function renderApps(category) {
+      const grid = document.getElementById('appsGrid');
+      const filtered = category === 'Todos' ? allApps : allApps.filter(a => a.category === category);
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="empty"><div class="empty-icon">🎮</div><div class="empty-title">Nenhum app disponível</div></div>`;
+        return;
+      }
+
+      grid.innerHTML = '';
+      filtered.forEach(app => {
+        const card = document.createElement('div');
+        card.className = 'app-card';
+        card.dataset.id = app.id;
+
+        if (app.banner_url) {
+          card.style.setProperty('--banner', `url(${app.banner_url})`);
+          card.querySelector?.('::before');
+          card.style.backgroundImage = '';
+        }
+
+        const icon = app.icon_url
+          ? `<img class="app-icon" src="${app.icon_url}" alt="${app.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="app-icon-placeholder" style="display:none">${CAT_EMOJI[app.category] || '📦'}</div>`
+          : `<div class="app-icon-placeholder">${CAT_EMOJI[app.category] || '📦'}</div>`;
+
+        card.innerHTML = `
+          ${icon}
+          <div class="app-name">${app.name}</div>
+          <div class="app-category">${app.category}</div>
+          <div class="launching-badge">ABRINDO</div>
+        `;
+
+        card.addEventListener('click', () => launchApp(card, app));
+        grid.appendChild(card);
+      });
+    }
+
+    async function launchApp(card, app) {
+      if (card.classList.contains('launching')) return;
+      card.classList.add('launching');
+      try {
+        await window.agent.launchApp(app.exe_path, app.exe_args || '');
+      } catch (e) {
+        console.error('Erro ao lançar app:', e);
+      }
+      setTimeout(() => card.classList.remove('launching'), 3000);
+    }
+
+    // End session
+    document.getElementById('endBtn').addEventListener('click', () => {
+      document.getElementById('endModal').classList.add('visible');
+    });
+    document.getElementById('modalCancel').addEventListener('click', () => {
+      document.getElementById('endModal').classList.remove('visible');
+    });
+    document.getElementById('modalConfirm').addEventListener('click', async () => {
+      document.getElementById('endModal').classList.remove('visible');
+      await window.agent.endSession();
+    });
+  </script>
+</body>
+</html>

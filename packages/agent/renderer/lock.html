@@ -179,6 +179,39 @@
 
     .success-msg.visible { display: block; }
 
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      width: 100%;
+    }
+
+    .field-label {
+      font-size: 0.75rem;
+      color: var(--wolf-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+
+    .field-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: #161b24;
+      border: 2px solid rgba(29,111,237,0.2);
+      border-radius: 0.625rem;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      color: var(--wolf-white);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field-input:focus {
+      border-color: var(--wolf-blue);
+      box-shadow: 0 0 0 3px rgba(29,111,237,0.15);
+    }
+
     .hint {
       font-size: 0.8rem;
       color: var(--wolf-muted);
@@ -215,93 +248,61 @@
   <p class="subtitle">Lan House Premium · BH</p>
 
   <div class="card">
-    <p class="card-title">Digite seu PIN para começar</p>
+    <p class="card-title">Faça login para começar</p>
 
-    <div class="pin-inputs" id="pinInputs">
-      <input class="pin-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="d0" />
-      <input class="pin-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="d1" />
-      <input class="pin-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="d2" />
-      <input class="pin-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="d3" />
-      <input class="pin-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="d4" />
-      <input class="pin-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="d5" />
+    <div style="width:100%;display:flex;flex-direction:column;gap:0.75rem;">
+      <div class="field">
+        <label class="field-label">E-mail</label>
+        <input id="email" type="email" class="field-input" placeholder="seu@email.com" autocomplete="username" />
+      </div>
+      <div class="field">
+        <label class="field-label">Senha</label>
+        <input id="password" type="password" class="field-input" placeholder="••••••••" autocomplete="current-password" />
+      </div>
     </div>
 
     <div class="error-msg" id="errorMsg"></div>
     <div class="success-msg" id="successMsg"></div>
 
-    <button class="btn" id="submitBtn" disabled>ENTRAR</button>
+    <button class="btn" id="submitBtn">ENTRAR</button>
 
     <p class="hint">
-      Gere seu PIN em <strong>arenawolf.netlify.app</strong><br/>
-      na seção <strong>"Usar PC"</strong> do seu perfil.
+      Use o mesmo login e senha do site<br/>
+      <strong>arenawolf.netlify.app</strong>
     </p>
   </div>
 
   <script>
-    const digits = Array.from({ length: 6 }, (_, i) => document.getElementById(`d${i}`));
+    const emailEl = document.getElementById('email');
+    const passwordEl = document.getElementById('password');
     const submitBtn = document.getElementById('submitBtn');
     const errorMsg = document.getElementById('errorMsg');
     const successMsg = document.getElementById('successMsg');
 
-    function getPin() { return digits.map(d => d.value).join(''); }
+    emailEl.focus();
 
-    function updateSubmitState() {
-      const pin = getPin();
-      submitBtn.disabled = pin.length < 6;
-      digits.forEach((d, i) => {
-        d.classList.toggle('filled', d.value.length === 1);
-      });
-    }
-
-    digits.forEach((input, idx) => {
-      input.addEventListener('input', (e) => {
-        const val = e.target.value.replace(/[^0-9]/g, '');
-        input.value = val.slice(-1);
-        if (val && idx < 5) digits[idx + 1].focus();
-        updateSubmitState();
-      });
-
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace' && !input.value && idx > 0) {
-          digits[idx - 1].focus();
-          digits[idx - 1].value = '';
-          updateSubmitState();
-        }
-        if (e.key === 'Enter') submitPin();
-      });
-
-      input.addEventListener('paste', (e) => {
-        e.preventDefault();
-        const pasted = (e.clipboardData.getData('text') || '').replace(/[^0-9]/g, '').slice(0, 6);
-        pasted.split('').forEach((char, i) => {
-          if (digits[i]) digits[i].value = char;
-        });
-        const nextEmpty = digits.findIndex(d => !d.value);
-        (nextEmpty >= 0 ? digits[nextEmpty] : digits[5]).focus();
-        updateSubmitState();
-      });
+    [emailEl, passwordEl].forEach(el => {
+      el.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
     });
-
-    digits[0].focus();
 
     function showError(msg) {
       errorMsg.textContent = msg;
       errorMsg.classList.add('visible');
       successMsg.classList.remove('visible');
-      digits.forEach(d => { d.value = ''; d.classList.remove('filled'); });
-      digits[0].focus();
-      updateSubmitState();
+      passwordEl.value = '';
+      emailEl.focus();
     }
 
     function showSuccess(nickname) {
-      successMsg.textContent = `✓ Bem-vindo, ${nickname}! Iniciando sua sessão...`;
+      successMsg.textContent = `✓ Bem-vindo, ${nickname}! Carregando...`;
       successMsg.classList.add('visible');
       errorMsg.classList.remove('visible');
     }
 
-    async function submitPin() {
-      const pin = getPin();
-      if (pin.length < 6) return;
+    async function doLogin() {
+      const email = emailEl.value.trim();
+      const password = passwordEl.value;
+      if (!email || !password) { showError('Preencha e-mail e senha.'); return; }
 
       submitBtn.classList.add('loading');
       submitBtn.disabled = true;
@@ -309,22 +310,24 @@
       errorMsg.classList.remove('visible');
 
       try {
-        const result = await window.agent.submitPin(pin);
+        const result = await window.agent.loginCredentials(email, password);
         if (result.ok) {
           showSuccess(result.nickname);
         } else {
-          showError(result.error || 'PIN inválido. Tente novamente.');
+          showError(result.error || 'Credenciais inválidas.');
+          submitBtn.classList.remove('loading');
+          submitBtn.textContent = 'ENTRAR';
+          submitBtn.disabled = false;
         }
       } catch (err) {
         showError('Erro de conexão. Verifique a internet.');
-      } finally {
         submitBtn.classList.remove('loading');
         submitBtn.textContent = 'ENTRAR';
-        updateSubmitState();
+        submitBtn.disabled = false;
       }
     }
 
-    submitBtn.addEventListener('click', submitPin);
+    submitBtn.addEventListener('click', doLogin);
   </script>
 </body>
 </html>

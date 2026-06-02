@@ -1,5 +1,10 @@
-import { createClient, RealtimeChannel } from "@supabase/supabase-js";
+import { createClient, RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
 import { getConfig } from "./config";
+
+export interface AppInfo {
+  id: string; name: string; description: string; category: string;
+  exe_path: string; exe_args: string; icon_url: string; banner_url: string; sort_order: number;
+}
 
 export interface SessionState {
   sessionId: string;
@@ -96,4 +101,78 @@ export function subscribeToSession(machineId: string, onChange: SessionChangeHan
 export function getRemainingSeconds(): number {
   if (!currentSession) return 0;
   return Math.max(0, Math.floor((currentSession.endsAt.getTime() - Date.now()) / 1000));
+}
+
+export async function loginWithCredentials(
+  email: string,
+  password: string
+): Promise<{ ok: boolean; session?: SessionState; error?: string }> {
+  const cfg = getConfig();
+  const supabase = createClient(cfg.supabaseUrl, cfg.supabaseKey);
+
+  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+  if (authError || !authData.user) {
+    return { ok: false, error: authError?.message ?? "Credenciais inválidas" };
+  }
+
+  const userId = authData.user.id;
+
+  // Buscar perfil
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("nickname, credits_minutes, banned")
+    .eq("id", userId)
+    .single();
+
+  if (!profile) return { ok: false, error: "Perfil não encontrado" };
+  if (profile.banned) return { ok: false, error: "Conta banida. Fale com o atendente." };
+  if ((profile.credits_minutes ?? 0) <= 0) {
+    return { ok: false, error: "Sem créditos disponíveis. Compre mais na loja." };
+  }
+
+  // Iniciar sessão via API
+  try {
+    const res = await fetch(`${cfg.apiBaseUrl}/api/session/start`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-agent-key": cfg.agentKey,
+        "Authorization": `Bearer ${authData.session?.access_token}`,
+      },
+      body: JSON.stringify({
+        machine_id: cfg.machineId,
+        user_id: userId,
+        minutes: profile.credits_minutes,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) return { ok: false, error: data.error ?? "Falha ao iniciar sessão" };
+
+    const session: SessionState = {
+      sessionId: data.session_id,
+      userId,
+      nickname: profile.nickname ?? email.split("@")[0],
+      creditsMinutes: profile.credits_minutes,
+      endsAt: new Date(data.ends_at),
+      machineId: cfg.machineId,
+    };
+    currentSession = session;
+    return { ok: true, session };
+  } catch {
+    return { ok: false, error: "Erro de conexão com o servidor" };
+  }
+}
+
+export async function fetchMachineApps(): Promise<AppInfo[]> {
+  const cfg = getConfig();
+  try {
+    const res = await fetch(`${cfg.apiBaseUrl}/api/apps/${cfg.machineId}`, {
+      headers: { "x-agent-key": cfg.agentKey },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.apps ?? [];
+  } catch {
+    return [];
+  }
 }

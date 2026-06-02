@@ -1,13 +1,14 @@
-import { app, BrowserWindow, ipcMain, screen, nativeTheme } from "electron";
+import { app, BrowserWindow, ipcMain, screen, nativeTheme, IpcMainInvokeEvent } from "electron";
 import path from "path";
 import { getConfig, isConfigured, setConfig } from "./config";
-import { validatePin, endCurrentSession, subscribeToSession, getRemainingSeconds, getCurrentSession } from "./session";
+import { validatePin, endCurrentSession, subscribeToSession, getRemainingSeconds, getCurrentSession, loginWithCredentials, fetchMachineApps } from "./session";
 import { lockScreen, disableSystemKeys, enableSystemKeys } from "./lock";
 
 nativeTheme.themeSource = "dark";
 
 let lockWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
+let homeWindow: BrowserWindow | null = null;
 let unsubscribeSession: (() => void) | null = null;
 let sessionCheckInterval: NodeJS.Timeout | null = null;
 
@@ -87,8 +88,39 @@ function showLockedState() {
   }
 }
 
-function showActiveSession() {
+function showHomeScreen(apps: unknown[], nickname: string, credits: number, endsAt: string) {
   destroyLockScreen();
+  if (!homeWindow || homeWindow.isDestroyed()) {
+    createHomeWindow();
+  }
+  // Enviar dados para a home após carregar
+  homeWindow?.webContents.once("did-finish-load", () => {
+    homeWindow?.webContents.send("session-data", { apps, nickname, credits, endsAt });
+  });
+  // Se já carregou, enviar direto
+  homeWindow?.webContents.send("session-data", { apps, nickname, credits, endsAt });
+  showActiveSession();
+}
+
+function createHomeWindow() {
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+  homeWindow = new BrowserWindow({
+    width, height, x: 0, y: 0,
+    frame: false, fullscreen: true,
+    alwaysOnTop: false,
+    webPreferences: {
+      nodeIntegration: false, contextIsolation: true,
+      preload: path.join(__dirname, "preload.js"),
+    },
+  });
+  homeWindow.loadFile(path.join(__dirname, "../renderer/home.html"));
+}
+
+function destroyHomeWindow() {
+  if (homeWindow && !homeWindow.isDestroyed()) { homeWindow.close(); homeWindow = null; }
+}
+
+function showActiveSession() {
   if (!overlayWindow || overlayWindow.isDestroyed()) {
     createOverlay();
   }
@@ -107,11 +139,24 @@ async function handleSessionExpired() {
   if (sessionCheckInterval) clearInterval(sessionCheckInterval);
   await endCurrentSession("system");
   destroyOverlay();
+  destroyHomeWindow();
   showLockedState();
 }
 
-// IPC: recebido da tela de bloqueio quando usuário digita PIN
-ipcMain.handle("submit-pin", async (_event, pin: string) => {
+// IPC: login com email + senha (substitui PIN)
+ipcMain.handle("login-credentials", async (_event: IpcMainInvokeEvent, email: string, password: string) => {
+  const result = await loginWithCredentials(email, password);
+  if (result.ok && result.session) {
+    // Buscar apps e enviar para home
+    const apps = await fetchMachineApps();
+    showHomeScreen(apps, result.session.nickname, result.session.creditsMinutes, result.session.endsAt.toISOString());
+    return { ok: true, nickname: result.session.nickname };
+  }
+  return { ok: false, error: result.error };
+});
+
+// IPC: recebido da tela de bloqueio quando usuário digita PIN (compatibilidade)
+ipcMain.handle("submit-pin", async (_event: IpcMainInvokeEvent, pin: string) => {
   const cfg = getConfig();
   if (!cfg.machineId) return { ok: false, error: "Máquina não configurada" };
 
@@ -123,18 +168,32 @@ ipcMain.handle("submit-pin", async (_event, pin: string) => {
   return { ok: false, error: result.error };
 });
 
-// IPC: usuário clica em encerrar na overlay
+// IPC: buscar apps da máquina
+ipcMain.handle("fetch-apps", async (_event: IpcMainInvokeEvent) => {
+  return fetchMachineApps();
+});
+
+// IPC: lançar app (spawn .exe)
+ipcMain.handle("launch-app", async (_event: IpcMainInvokeEvent, exePath: string, exeArgs: string) => {
+  const { spawn } = await import("child_process");
+  const args = exeArgs ? exeArgs.split(" ").filter(Boolean) : [];
+  spawn(exePath, args, { detached: true, stdio: "ignore" }).unref();
+  return { ok: true };
+});
+
+// IPC: usuário clica em encerrar na home ou overlay
 ipcMain.handle("end-session", async () => {
   if (sessionCheckInterval) clearInterval(sessionCheckInterval);
   await endCurrentSession("user");
   destroyOverlay();
+  destroyHomeWindow();
   showLockedState();
   return { ok: true };
 });
 
 // IPC: obter configuração atual
 ipcMain.handle("get-config", () => getConfig());
-ipcMain.handle("set-config", (_event, partial) => { setConfig(partial); return getConfig(); });
+ipcMain.handle("set-config", (_event: IpcMainInvokeEvent, partial: Record<string, string>) => { setConfig(partial); return getConfig(); });
 
 app.whenReady().then(async () => {
   const cfg = getConfig();

@@ -18,6 +18,7 @@ import {
   LogOut,
   ChevronRight,
   Gamepad2,
+  AppWindow,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/actions/auth";
@@ -29,6 +30,7 @@ const navGroups = [
     items: [
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
       { href: "/admin/operator", label: "Painel Operador", icon: Gamepad2 },
+      { href: "/admin/apps", label: "Launcher de Apps", icon: AppWindow },
       { href: "/admin/machines", label: "Máquinas", icon: Monitor },
       { href: "/admin/reservations", label: "Reservas", icon: CalendarClock },
       { href: "/admin/users", label: "Usuários", icon: Users },
