@@ -10,7 +10,7 @@ ALTER TABLE public.products ADD COLUMN IF NOT EXISTS description TEXT DEFAULT ''
 
 -- 2. MARKETING CAMPAIGNS — remover CHECK constraint restritivo de platform
 --    (o schema original tem CHECK IN ('meta','google') mas usamos texto livre)
-ALTER TABLE public.marketing_campaigns DROP CONSTRAINT IF EXISTS marketing_campaigns_platform_check;
+ALTER TABLE public.marketing_campaigns DROP CONSTRAINT IF EXISTS marketiang_campaigns_platform_check;
 -- Garantir que a coluna existe sem constraint
 ALTER TABLE public.marketing_campaigns ADD COLUMN IF NOT EXISTS platform TEXT;
 ALTER TABLE public.marketing_campaigns ADD COLUMN IF NOT EXISTS name TEXT;
@@ -111,6 +111,9 @@ INSERT INTO public.events (title, type, description, start_at, end_at, price, ma
 ON CONFLICT DO NOTHING;
 
 -- 14. Seed de promoção de exemplo
-INSERT INTO public.promotions (title, description, type, discount_value, active, valid_until) VALUES
-  ('Desconto Corujão', 'R$2 de desconto na hora entre 22h e 6h nos finais de semana!', 'discount_fixed', 2.00, TRUE, (NOW() + INTERVAL '30 days')::DATE)
+-- Garantir que discount_type não seja NOT NULL ou tem default
+ALTER TABLE public.promotions ALTER COLUMN discount_type SET DEFAULT 'discount_fixed';
+
+INSERT INTO public.promotions (title, description, type, discount_type, discount_value, active, valid_until) VALUES
+  ('Desconto Corujão', 'R$2 de desconto na hora entre 22h e 6h nos finais de semana!', 'discount_fixed', 'discount_fixed', 2.00, TRUE, (NOW() + INTERVAL '30 days')::DATE)
 ON CONFLICT DO NOTHING;
