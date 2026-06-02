@@ -1,0 +1,25 @@
+{
+  "name": "Arena Wolf",
+  "short_name": "Arena Wolf",
+  "description": "Lan House Premium BH — Reserve online, veja máquinas ao vivo",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0D1117",
+  "theme_color": "#0D1117",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/logo-dark-bg.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/logo-dark-bg.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ],
+  "categories": ["games", "entertainment"],
+  "lang": "pt-BR"
+}
