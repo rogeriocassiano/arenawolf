@@ -36,6 +36,17 @@ export async function createTournament(formData: FormData) {
 
 export async function registerForTournament(tournamentId: string) {
   const { supabase, user } = await getUser();
+
+  const { data: tournament } = await supabase
+    .from("tournaments")
+    .select("status, slots_taken, max_slots")
+    .eq("id", tournamentId)
+    .single();
+
+  if (!tournament) return { error: "Campeonato não encontrado" };
+  if (tournament.status !== "open") return { error: "As inscrições para este campeonato estão encerradas" };
+  if (tournament.slots_taken >= tournament.max_slots) return { error: "Campeonato lotado" };
+
   const { error } = await supabase.from("tournament_participants").insert({ tournament_id: tournamentId, user_id: user.id });
   if (error) return { error: error.message };
   await supabase.rpc("increment_slots_taken", { tournament_id: tournamentId });

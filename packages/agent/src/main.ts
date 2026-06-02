@@ -208,7 +208,8 @@ ipcMain.handle("submit-pin", async (_event: IpcMainInvokeEvent, pin: string) => 
 
   const result = await validatePin(pin);
   if (result.ok && result.session) {
-    showActiveSession();
+    const apps = await fetchMachineApps();
+    showHomeScreen(apps, result.session.nickname, result.session.creditsMinutes, result.session.endsAt.toISOString());
     return { ok: true, nickname: result.session.nickname };
   }
   return { ok: false, error: result.error };

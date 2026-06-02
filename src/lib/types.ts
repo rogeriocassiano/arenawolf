@@ -11,7 +11,10 @@ export type ReservationStatus =
 
 export type TransactionType =
   | "credit_purchase"
+  | "credit_add"
+  | "credit_request"
   | "reservation"
+  | "session_end"
   | "product"
   | "refund";
 
