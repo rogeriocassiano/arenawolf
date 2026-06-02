@@ -27,8 +27,16 @@ DROP POLICY IF EXISTS "Admin can insert transactions" ON public.transactions;
 CREATE POLICY "Admin can insert transactions" ON public.transactions
   FOR INSERT WITH CHECK (public.is_staff());
 
--- 4. Garantir que transactions também aparece no Realtime (para financeiro ao vivo)
-ALTER PUBLICATION supabase_realtime ADD TABLE public.transactions;
+-- 4. Garantir que transactions aparece no Realtime (idempotente)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND tablename = 'transactions'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.transactions;
+  END IF;
+END $$;
 
 -- 5. Corrigir validate_pin_and_start: limitar sessão a 240min (igual ao agente)
 CREATE OR REPLACE FUNCTION public.validate_pin_and_start(
