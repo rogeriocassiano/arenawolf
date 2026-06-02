@@ -87,24 +87,37 @@ ALTER TABLE public.tournaments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tournament_participants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tournament_matches ENABLE ROW LEVEL SECURITY;
 
--- POLICIES
+-- POLICIES (idempotentes — DROP IF EXISTS antes de criar)
+DROP POLICY IF EXISTS "Anyone can view teams" ON public.teams;
+DROP POLICY IF EXISTS "Captain can manage team" ON public.teams;
+DROP POLICY IF EXISTS "Admin can manage teams" ON public.teams;
 CREATE POLICY "Anyone can view teams" ON public.teams FOR SELECT TO authenticated USING (TRUE);
 CREATE POLICY "Captain can manage team" ON public.teams FOR ALL USING (auth.uid() = captain_id);
 CREATE POLICY "Admin can manage teams" ON public.teams FOR ALL USING (public.is_staff());
 
+DROP POLICY IF EXISTS "Anyone can view team members" ON public.team_members;
+DROP POLICY IF EXISTS "Captain can manage members" ON public.team_members;
+DROP POLICY IF EXISTS "Admin can manage team members" ON public.team_members;
 CREATE POLICY "Anyone can view team members" ON public.team_members FOR SELECT TO authenticated USING (TRUE);
 CREATE POLICY "Captain can manage members" ON public.team_members FOR ALL USING (
   EXISTS (SELECT 1 FROM public.teams t WHERE t.id = team_id AND t.captain_id = auth.uid())
 );
 CREATE POLICY "Admin can manage team members" ON public.team_members FOR ALL USING (public.is_staff());
 
+DROP POLICY IF EXISTS "Anyone can view tournaments" ON public.tournaments;
+DROP POLICY IF EXISTS "Admin can manage tournaments" ON public.tournaments;
 CREATE POLICY "Anyone can view tournaments" ON public.tournaments FOR SELECT USING (TRUE);
 CREATE POLICY "Admin can manage tournaments" ON public.tournaments FOR ALL USING (public.is_staff());
 
+DROP POLICY IF EXISTS "Anyone can view participants" ON public.tournament_participants;
+DROP POLICY IF EXISTS "Users can register" ON public.tournament_participants;
+DROP POLICY IF EXISTS "Admin can manage participants" ON public.tournament_participants;
 CREATE POLICY "Anyone can view participants" ON public.tournament_participants FOR SELECT USING (TRUE);
 CREATE POLICY "Users can register" ON public.tournament_participants FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Admin can manage participants" ON public.tournament_participants FOR ALL USING (public.is_staff());
 
+DROP POLICY IF EXISTS "Anyone can view matches" ON public.tournament_matches;
+DROP POLICY IF EXISTS "Admin can manage matches" ON public.tournament_matches;
 CREATE POLICY "Anyone can view matches" ON public.tournament_matches FOR SELECT USING (TRUE);
 CREATE POLICY "Admin can manage matches" ON public.tournament_matches FOR ALL USING (public.is_staff());
 
