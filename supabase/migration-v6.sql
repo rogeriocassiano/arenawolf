@@ -25,7 +25,7 @@ ALTER TABLE public.transactions ADD CONSTRAINT transactions_type_check
 -- mas o addCredits usa createAdminClient (service role) sem auth.uid()
 DROP POLICY IF EXISTS "Admin can insert transactions" ON public.transactions;
 CREATE POLICY "Admin can insert transactions" ON public.transactions
-  FOR INSERT USING (public.is_staff());
+  FOR INSERT WITH CHECK (public.is_staff());
 
 -- 4. Garantir que transactions também aparece no Realtime (para financeiro ao vivo)
 ALTER PUBLICATION supabase_realtime ADD TABLE public.transactions;
