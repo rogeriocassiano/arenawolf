@@ -54,11 +54,14 @@ export async function purchaseProduct(productId: string) {
   if (!product) return { error: "Produto não encontrado" };
   if (product.stock <= 0) return { error: "Produto esgotado" };
 
-  const { error: stockError } = await supabase
+  const { data: updated, error: stockError } = await supabase
     .from("products")
     .update({ stock: product.stock - 1 })
-    .eq("id", productId);
+    .eq("id", productId)
+    .gt("stock", 0)   // garante atomicidade: só decrementa se ainda há estoque
+    .select("id");
   if (stockError) return { error: stockError.message };
+  if (!updated || updated.length === 0) return { error: "Produto esgotado" };
 
   await supabase.from("transactions").insert({
     user_id: user.id,

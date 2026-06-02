@@ -78,10 +78,16 @@ export async function createReservation(
 
   if (reservationError) return { error: "Erro ao criar reserva." };
 
-  await supabase
+  const { error: creditError } = await supabase
     .from("profiles")
     .update({ credits_minutes: profile.credits_minutes - cost_minutes })
     .eq("id", user.id);
+
+  if (creditError) {
+    // Rollback: cancelar a reserva criada
+    await supabase.from("reservations").update({ status: "cancelled" }).eq("user_id", user.id).eq("status", "pending").gte("created_at", new Date(Date.now() - 5000).toISOString());
+    return { error: "Erro ao debitar créditos. Tente novamente." };
+  }
 
   await supabase.from("transactions").insert({
     user_id: user.id,

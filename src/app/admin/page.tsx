@@ -23,7 +23,7 @@ export default async function AdminDashboardPage() {
     supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "user"),
     supabase.from("machines").select("*"),
     supabase.from("reservations").select("*", { count: "exact", head: true }).gte("created_at", todayISO),
-    supabase.from("transactions").select("amount, type").gte("created_at", todayISO).eq("type", "credit_purchase"),
+    supabase.from("transactions").select("amount, type").gte("created_at", todayISO).in("type", ["credit_purchase", "credit_add"]),
     supabase.from("sessions").select("*, machine:machines(name), profile:profiles(nickname)").eq("status", "active").order("started_at").limit(10),
     supabase.from("support_tickets").select("*", { count: "exact", head: true }).eq("status", "open"),
   ]);

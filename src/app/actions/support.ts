@@ -92,6 +92,17 @@ export async function closeTicket(ticketId: string): Promise<ActionState> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Não autenticado." };
 
+  const [{ data: ticket }, { data: profile }] = await Promise.all([
+    supabase.from("support_tickets").select("user_id").eq("id", ticketId).single(),
+    supabase.from("profiles").select("role").eq("id", user.id).single(),
+  ]);
+
+  if (!ticket) return { error: "Ticket não encontrado." };
+
+  const isStaff = profile?.role === "admin" || profile?.role === "staff";
+  const isOwner = ticket.user_id === user.id;
+  if (!isStaff && !isOwner) return { error: "Acesso negado." };
+
   await supabase
     .from("support_tickets")
     .update({ status: "closed" })
