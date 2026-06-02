@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
+import { Toaster } from "sonner";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -25,6 +26,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <main className="flex-1 lg:ml-56 min-h-screen p-5 lg:p-6">
         {children}
       </main>
+      <Toaster position="bottom-right" theme="dark" richColors />
     </div>
   );
 }

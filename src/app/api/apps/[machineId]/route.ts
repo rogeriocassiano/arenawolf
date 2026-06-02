@@ -25,8 +25,7 @@ export async function GET(
       .from("machine_apps")
       .select("enabled, app:apps(id, name, description, category, exe_path, exe_args, icon_url, banner_url, sort_order)")
       .eq("machine_id", machineId)
-      .eq("enabled", true)
-      .order("app(sort_order)");
+      .eq("enabled", true);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
@@ -40,7 +39,11 @@ export async function GET(
       return NextResponse.json({ apps: allApps ?? [], source: "global" });
     }
 
-    const apps = machineApps.map(ma => ma.app).filter(Boolean);
+    const apps = machineApps
+      .map(ma => ma.app)
+      .filter(Boolean)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .sort((a: any, b: any) => (a?.sort_order ?? 0) - (b?.sort_order ?? 0));
     return NextResponse.json({ apps, source: "machine" });
   } catch (err) {
     console.error("[api/apps]", err);

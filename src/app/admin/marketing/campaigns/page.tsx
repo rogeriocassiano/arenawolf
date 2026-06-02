@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Megaphone, Plus, X, Edit2, Pause, Play, Trash2, Target, TrendingUp, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -23,6 +24,7 @@ export default function CampaignsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "", platform: "Instagram", objective: "Engajamento",
     budget: "", start_date: "", end_date: "", target_audience: "", description: ""
@@ -43,9 +45,9 @@ export default function CampaignsPage() {
   }
 
   async function deleteCampaign(id: string) {
-    if (!confirm("Excluir campanha?")) return;
     await supabase.from("marketing_campaigns").delete().eq("id", id);
     setCampaigns(p => p.filter(c => c.id !== id));
+    setConfirmDeleteId(null);
   }
 
   async function handleCreate(e: React.FormEvent) {
@@ -137,7 +139,7 @@ export default function CampaignsPage() {
                       <Play className="size-4" />
                     </button>
                   )}
-                  <button onClick={() => deleteCampaign(c.id)} title="Excluir" className="p-2 rounded-lg hover:bg-wolf-red/20 text-wolf-muted hover:text-wolf-red transition-colors">
+                  <button onClick={() => setConfirmDeleteId(c.id)} title="Excluir" className="p-2 rounded-lg hover:bg-wolf-red/20 text-wolf-muted hover:text-wolf-red transition-colors">
                     <Trash2 className="size-4" />
                   </button>
                 </div>
@@ -145,6 +147,14 @@ export default function CampaignsPage() {
             );
           })}
         </div>
+      )}
+
+      {confirmDeleteId && (
+        <ConfirmDialog
+          message="Excluir esta campanha? Esta ação não pode ser desfeita."
+          onConfirm={() => deleteCampaign(confirmDeleteId)}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
       )}
 
       {/* Modal criar */}

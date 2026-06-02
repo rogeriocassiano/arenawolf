@@ -81,26 +81,26 @@
       font-weight: 500;
     }
 
-    .end-btn {
-      width: 100%;
-      margin-top: 0.25rem;
-      padding: 0.35rem;
-      background: rgba(230,57,70,0.15);
-      border: 1px solid rgba(230,57,70,0.3);
-      border-radius: 0.5rem;
-      color: #ef4444;
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      cursor: pointer;
-      -webkit-app-region: no-drag;
-      pointer-events: all;
-      transition: background 0.15s;
+    .credits-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.1rem;
     }
 
-    .end-btn:hover { background: rgba(230,57,70,0.28); }
+    .credits-label {
+      font-size: 0.65rem;
+      color: rgba(240,244,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .credits-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #5b9cf6;
+    }
   </style>
 </head>
 <body>
@@ -111,7 +111,10 @@
     </div>
     <div class="timer" id="timer">--:--</div>
     <div class="nickname" id="nickname">Sessão ativa</div>
-    <button class="end-btn" id="endBtn" onclick="endSession()">■ Encerrar sessão</button>
+    <div class="credits-row">
+      <span class="credits-label">Créditos:</span>
+      <span class="credits-value" id="creditsEl">--</span>
+    </div>
   </div>
 
   <script>
@@ -119,16 +122,28 @@
     const dotEl = document.getElementById('dot');
     const nicknameEl = document.getElementById('nickname');
 
-    window.agent.onTick(({ remaining, session }) => {
-      const h = Math.floor(remaining / 3600);
-      const m = Math.floor((remaining % 3600) / 60);
-      const s = remaining % 60;
+    const creditsEl = document.getElementById('creditsEl');
 
-      const timeStr = h > 0
+    function formatTime(seconds) {
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = seconds % 60;
+      return h > 0
         ? `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
         : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
 
-      timerEl.textContent = timeStr;
+    function formatCredits(minutes) {
+      if (!minutes && minutes !== 0) return '--';
+      const h = Math.floor(minutes / 60);
+      const m = minutes % 60;
+      if (h > 0 && m > 0) return `${h}h ${m}min`;
+      if (h > 0) return `${h}h`;
+      return `${m}min`;
+    }
+
+    window.agent.onTick(({ remaining, session }) => {
+      timerEl.textContent = formatTime(remaining);
 
       const isCritical = remaining < 120;
       const isWarning = remaining < 600;
@@ -136,15 +151,13 @@
       timerEl.className = 'timer' + (isCritical ? ' critical' : isWarning ? ' warning' : '');
       dotEl.className = 'status-dot' + (isCritical ? ' critical' : isWarning ? ' warning' : '');
 
-      if (session && session.nickname) {
-        nicknameEl.textContent = session.nickname;
+      if (session) {
+        if (session.nickname) nicknameEl.textContent = session.nickname;
+        if (session.creditsMinutes !== undefined) {
+          creditsEl.textContent = formatCredits(session.creditsMinutes);
+        }
       }
     });
-
-    async function endSession() {
-      if (!confirm('Encerrar sua sessão agora?')) return;
-      await window.agent.endSession();
-    }
   </script>
 </body>
 </html>

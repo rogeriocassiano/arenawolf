@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Target, Plus, X, Trash2, Tag, Percent, Clock, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -26,6 +27,7 @@ export function PromotionsClient({ promotions: initial }: { promotions: Promo[] 
   const [showCreate, setShowCreate] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "", description: "", type: "discount_percent", discount_value: "",
     min_purchase: "", valid_from: "", valid_until: "", max_uses: ""
@@ -39,9 +41,9 @@ export function PromotionsClient({ promotions: initial }: { promotions: Promo[] 
   }
 
   async function deletePromo(id: string) {
-    if (!confirm("Excluir promoção?")) return;
     await supabase.from("promotions").delete().eq("id", id);
     setPromotions(p => p.filter(pr => pr.id !== id));
+    setConfirmDeleteId(null);
   }
 
   async function handleCreate(e: React.FormEvent) {
@@ -145,7 +147,7 @@ export function PromotionsClient({ promotions: initial }: { promotions: Promo[] 
                     )}>
                     {promo.active ? "Desativar" : "Ativar"}
                   </button>
-                  <button onClick={() => deletePromo(promo.id)} className="p-2 rounded-lg hover:bg-wolf-red/20 text-wolf-muted hover:text-wolf-red transition-colors">
+                  <button onClick={() => setConfirmDeleteId(promo.id)} className="p-2 rounded-lg hover:bg-wolf-red/20 text-wolf-muted hover:text-wolf-red transition-colors">
                     <Trash2 className="size-4" />
                   </button>
                 </div>
@@ -153,6 +155,14 @@ export function PromotionsClient({ promotions: initial }: { promotions: Promo[] 
             );
           })}
         </div>
+      )}
+
+      {confirmDeleteId && (
+        <ConfirmDialog
+          message="Excluir esta promoção? Esta ação não pode ser desfeita."
+          onConfirm={() => deletePromo(confirmDeleteId)}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
       )}
 
       {/* Modal */}

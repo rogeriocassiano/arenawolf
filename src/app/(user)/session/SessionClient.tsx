@@ -55,6 +55,7 @@ export function SessionClient({ profile, machines, activeSession }: SessionClien
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [connected, setConnected] = useState(false);
+  const [confirmEnd, setConfirmEnd] = useState(false);
 
   const supabase = createClient();
 
@@ -112,7 +113,7 @@ export function SessionClient({ profile, machines, activeSession }: SessionClien
   }
 
   async function endSession() {
-    if (!session || !confirm("Encerrar sua sessão?")) return;
+    if (!session) return;
     setLoading(true);
     try {
       await fetch("/api/session/end", {
@@ -122,6 +123,7 @@ export function SessionClient({ profile, machines, activeSession }: SessionClien
       });
       setSession(null);
       setPin(null);
+      setConfirmEnd(false);
       await refreshMachines();
     } finally {
       setLoading(false);
@@ -166,10 +168,22 @@ export function SessionClient({ profile, machines, activeSession }: SessionClien
             <Countdown endsAt={session.ends_at} />
           </div>
 
-          <Button variant="outline" className="gap-2 border-wolf-red/30 text-wolf-red hover:bg-wolf-red/20"
-            loading={loading} onClick={endSession}>
-            <Square className="size-4" /> Encerrar Sessão
-          </Button>
+          {confirmEnd ? (
+            <div className="flex flex-col gap-3 p-4 rounded-xl bg-wolf-red/10 border border-wolf-red/30">
+              <p className="text-sm text-wolf-red font-semibold text-center">Tem certeza? O tempo não utilizado não será reembolsado.</p>
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={() => setConfirmEnd(false)} disabled={loading}>Cancelar</Button>
+                <Button className="flex-1 gap-2 bg-wolf-red hover:bg-wolf-red/80 border-wolf-red/50" loading={loading} onClick={endSession}>
+                  <Square className="size-3.5" /> Confirmar Encerramento
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button variant="outline" className="gap-2 border-wolf-red/30 text-wolf-red hover:bg-wolf-red/20"
+              onClick={() => setConfirmEnd(true)}>
+              <Square className="size-4" /> Encerrar Sessão
+            </Button>
+          )}
         </div>
 
         <p className="text-xs text-wolf-muted text-center">
@@ -192,18 +206,33 @@ export function SessionClient({ profile, machines, activeSession }: SessionClien
       </div>
 
       {/* Saldo */}
-      <div className="flex items-center gap-3 p-4 rounded-xl bg-wolf-blue/10 border border-wolf-blue/30">
-        <Clock className="size-5 text-wolf-blue-light" />
+      <div className={cn(
+        "flex items-center gap-3 p-4 rounded-xl border",
+        (profile?.credits_minutes ?? 0) === 0
+          ? "bg-wolf-red/10 border-wolf-red/30"
+          : "bg-wolf-blue/10 border-wolf-blue/30"
+      )}>
+        <Clock className={cn("size-5", (profile?.credits_minutes ?? 0) === 0 ? "text-wolf-red" : "text-wolf-blue-light")} />
         <div>
           <p className="text-xs text-wolf-muted">Seu saldo</p>
-          <p className="font-[family-name:var(--font-orbitron)] font-bold text-wolf-blue-light">
+          <p className={cn("font-[family-name:var(--font-orbitron)] font-bold", (profile?.credits_minutes ?? 0) === 0 ? "text-wolf-red" : "text-wolf-blue-light")}>
             {formatMinutes(profile?.credits_minutes ?? 0)}
           </p>
         </div>
         {(profile?.credits_minutes ?? 0) === 0 && (
-          <a href="/store" className="ml-auto text-xs text-wolf-blue-light underline hover:text-white">Comprar créditos →</a>
+          <a href="/store" className="ml-auto px-3 py-1.5 rounded-lg bg-wolf-blue text-white text-xs font-[family-name:var(--font-rajdhani)] font-bold hover:brightness-110 transition-all">
+            Comprar créditos
+          </a>
         )}
       </div>
+
+      {/* Aviso sem créditos */}
+      {(profile?.credits_minutes ?? 0) === 0 && (
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-wolf-amber/10 border border-wolf-amber/25 text-wolf-amber text-sm">
+          <AlertTriangle className="size-4 shrink-0" />
+          Você não tem créditos. Adquira na loja para usar um PC.
+        </div>
+      )}
 
       {/* Erro */}
       {error && (

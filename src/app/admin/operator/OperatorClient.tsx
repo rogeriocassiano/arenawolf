@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -144,6 +144,13 @@ export function OperatorClient({ initialMachines, initialSessions, users }: Oper
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const [confirmEndId, setConfirmEndId] = useState<string | null>(null);
+
+  function showToast(msg: string, type: "success" | "error" = "success") {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  }
 
   // Modal estado
   const [startModal, setStartModal] = useState<{ machineId: string; machineName: string } | null>(null);
@@ -204,6 +211,7 @@ export function OperatorClient({ initialMachines, initialSessions, users }: Oper
       setStartModal(null);
       setSelectedUser("");
       setSelectedMinutes("60");
+      showToast(`✅ Sessão iniciada em ${startModal.machineName}`);
       await refreshSessions();
       await refreshMachines();
     } finally {
@@ -212,14 +220,20 @@ export function OperatorClient({ initialMachines, initialSessions, users }: Oper
   }
 
   async function handleEndSession(sessionId: string) {
-    if (!confirm("Encerrar esta sessão?")) return;
+    setConfirmEndId(sessionId);
+  }
+
+  async function confirmEndSession() {
+    if (!confirmEndId) return;
     setLoading(true);
+    setConfirmEndId(null);
     try {
       await fetch("/api/session/end", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sessionId, ended_by: "admin" }),
+        body: JSON.stringify({ session_id: confirmEndId, ended_by: "admin" }),
       });
+      showToast("✅ Sessão encerrada");
       await refreshSessions();
       await refreshMachines();
     } finally {
@@ -237,6 +251,7 @@ export function OperatorClient({ initialMachines, initialSessions, users }: Oper
         body: JSON.stringify({ session_id: addTimeModal.sessionId, minutes: Number(addMinutes) }),
       });
       setAddTimeModal(null);
+      showToast(`✅ +${addMinutes}min adicionados`);
       await refreshSessions();
     } finally {
       setLoading(false);
@@ -255,6 +270,34 @@ export function OperatorClient({ initialMachines, initialSessions, users }: Oper
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Toast */}
+      {toast && (
+        <div className={cn(
+          "fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl shadow-xl border text-sm font-[family-name:var(--font-rajdhani)] font-bold transition-all",
+          toast.type === "success"
+            ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400"
+            : "bg-wolf-red/15 border-wolf-red/40 text-wolf-red"
+        )}>
+          {toast.msg}
+        </div>
+      )}
+
+      {/* Modal: Confirmar Encerramento */}
+      {confirmEndId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4">
+          <div className="bg-wolf-surface border border-wolf-red/30 rounded-2xl p-6 w-full max-w-sm flex flex-col gap-4 shadow-2xl">
+            <h2 className="font-[family-name:var(--font-orbitron)] font-bold text-wolf-white">Encerrar Sessão?</h2>
+            <p className="text-sm text-wolf-muted">Esta ação irá encerrar a sessão e bloquear o PC.</p>
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1" onClick={() => setConfirmEndId(null)}>Cancelar</Button>
+              <Button className="flex-1 gap-2 bg-wolf-red hover:bg-wolf-red/80 border-wolf-red/50" loading={loading} onClick={confirmEndSession}>
+                <Square className="size-4" /> Encerrar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>

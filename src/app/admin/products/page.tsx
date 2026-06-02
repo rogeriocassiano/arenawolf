@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ShoppingBag, Plus, X, Trash2, Edit2, Package, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -20,6 +21,7 @@ export default function AdminProductsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [saving, setSaving] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", description: "", price: "", stock: "", category: "Bebida", image_url: "" });
 
   const supabase = createClient();
@@ -49,9 +51,9 @@ export default function AdminProductsPage() {
   }
 
   async function deleteProduct(id: string) {
-    if (!confirm("Excluir produto?")) return;
     await supabase.from("products").delete().eq("id", id);
     setProducts(prev => prev.filter(p => p.id !== id));
+    setConfirmDeleteId(null);
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -163,7 +165,7 @@ export default function AdminProductsPage() {
                       <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-wolf-blue/20 text-wolf-muted hover:text-wolf-blue-light transition-colors">
                         <Edit2 className="size-3.5" />
                       </button>
-                      <button onClick={() => deleteProduct(p.id)} className="p-1.5 rounded-lg hover:bg-wolf-red/20 text-wolf-muted hover:text-wolf-red transition-colors">
+                      <button onClick={() => setConfirmDeleteId(p.id)} className="p-1.5 rounded-lg hover:bg-wolf-red/20 text-wolf-muted hover:text-wolf-red transition-colors">
                         <Trash2 className="size-3.5" />
                       </button>
                     </div>
@@ -173,6 +175,14 @@ export default function AdminProductsPage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {confirmDeleteId && (
+        <ConfirmDialog
+          message="Excluir este produto? Esta ação não pode ser desfeita."
+          onConfirm={() => deleteProduct(confirmDeleteId)}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
       )}
 
       {/* Modal */}

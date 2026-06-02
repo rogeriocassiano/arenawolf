@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Sword, Plus, X, Trash2, Edit2, Calendar, Users, Moon, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -26,6 +27,7 @@ export default function AdminEventsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [editing, setEditing] = useState<Event | null>(null);
   const [saving, setSaving] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "", description: "", type: "evento",
     start_at: "", end_at: "", price: "0",
@@ -64,9 +66,9 @@ export default function AdminEventsPage() {
   }
 
   async function deleteEvent(id: string) {
-    if (!confirm("Excluir evento?")) return;
     await supabase.from("events").delete().eq("id", id);
     setEvents(prev => prev.filter(e => e.id !== id));
+    setConfirmDeleteId(null);
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -170,7 +172,7 @@ export default function AdminEventsPage() {
                     )}>
                     {ev.active ? "Desativar" : "Ativar"}
                   </button>
-                  <button onClick={() => deleteEvent(ev.id)} className="p-2 rounded-lg hover:bg-wolf-red/20 text-wolf-muted hover:text-wolf-red transition-colors">
+                  <button onClick={() => setConfirmDeleteId(ev.id)} className="p-2 rounded-lg hover:bg-wolf-red/20 text-wolf-muted hover:text-wolf-red transition-colors">
                     <Trash2 className="size-4" />
                   </button>
                 </div>
@@ -178,6 +180,14 @@ export default function AdminEventsPage() {
             );
           })}
         </div>
+      )}
+
+      {confirmDeleteId && (
+        <ConfirmDialog
+          message="Excluir este evento? Esta ação não pode ser desfeita."
+          onConfirm={() => deleteEvent(confirmDeleteId)}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
       )}
 
       {/* Modal */}

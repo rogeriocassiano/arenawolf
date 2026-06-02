@@ -39,8 +39,6 @@ export async function login(_state: ActionState, formData: FormData): Promise<Ac
     return { error: "Erro ao entrar. Tente novamente." };
   }
 
-  console.log("[LOGIN] session created:", !!data.session, "user:", data.user?.id, "email:", data.user?.email);
-
   redirect("/dashboard");
 }
 

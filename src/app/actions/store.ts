@@ -22,29 +22,22 @@ export async function purchaseCreditPackage(packageId: string) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("credits_minutes")
+    .select("credits_minutes, nickname")
     .eq("id", user.id)
     .single();
   if (!profile) return { error: "Perfil não encontrado" };
 
-  const newCredits = (profile.credits_minutes ?? 0) + pkg.total_minutes;
-
-  const { error: updateError } = await supabase
-    .from("profiles")
-    .update({ credits_minutes: newCredits })
-    .eq("id", user.id);
-  if (updateError) return { error: updateError.message };
-
-  await supabase.from("transactions").insert({
+  // Registra a solicitação — créditos são liberados pelo operador no balcão
+  const { error: txError } = await supabase.from("transactions").insert({
     user_id: user.id,
-    type: "credit_purchase",
+    type: "credit_request",
     amount: pkg.total_minutes,
-    description: `Compra de pacote ${pkg.id} — ${pkg.total_minutes}min`,
+    description: `Solicitação de pacote "${pkg.id}" — ${pkg.total_minutes}min (aguardando pagamento no balcão)`,
   });
+  if (txError) return { error: txError.message };
 
   revalidatePath("/store");
-  revalidatePath("/dashboard");
-  return { success: true, added: pkg.total_minutes, total: newCredits };
+  return { success: true, added: pkg.total_minutes, total: profile.credits_minutes };
 }
 
 export async function purchaseProduct(productId: string) {

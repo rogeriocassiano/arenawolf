@@ -46,7 +46,7 @@ export function StoreClient({ initialCredits, products }: StoreClientProps) {
         showFeedback("error", res.error);
       } else {
         setCredits(res.total ?? credits + pkg.minutes + pkg.bonus_minutes);
-        showFeedback("success", `✅ +${formatMinutes(pkg.minutes + pkg.bonus_minutes)} adicionados ao seu saldo!`);
+        showFeedback("success", `✅ Solicitação enviada! Dirija-se ao balcão para pagar e liberar +${formatMinutes(pkg.minutes + pkg.bonus_minutes)}.`);
       }
     });
   }
@@ -130,7 +130,7 @@ export function StoreClient({ initialCredits, products }: StoreClientProps) {
             </div>
           ))}
         </div>
-        <p className="text-xs text-wolf-muted">* Simulação de créditos. Integração com pagamento real (Pix/Cartão) em breve.</p>
+        <p className="text-xs text-wolf-muted">* Os créditos são adicionados imediatamente após a confirmação no balcão.</p>
       </div>
 
       {/* Produtos */}

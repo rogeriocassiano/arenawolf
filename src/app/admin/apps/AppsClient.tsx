@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { cn } from "@/lib/utils";
 import {
   Plus, X, Pencil, Monitor, Gamepad2, Globe, Wrench,
@@ -51,6 +52,7 @@ export function AppsClient({ initialApps, machines, machineApps: initialMachineA
   const [form, setForm] = useState(EMPTY_APP);
   const [isPending, startTransition] = useTransition();
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   function showFeedback(msg: string) {
     setFeedback(msg);
@@ -86,11 +88,17 @@ export function AppsClient({ initialApps, machines, machineApps: initialMachineA
   }
 
   function handleDelete(appId: string) {
-    if (!confirm("Excluir este app?")) return;
+    setConfirmDeleteId(appId);
+  }
+
+  function confirmDelete() {
+    if (!confirmDeleteId) return;
+    const id = confirmDeleteId;
+    setConfirmDeleteId(null);
     startTransition(async () => {
-      const res = await deleteApp(appId);
+      const res = await deleteApp(id);
       if (res.error) { showFeedback("Erro: " + res.error); return; }
-      setApps(prev => prev.filter(a => a.id !== appId));
+      setApps(prev => prev.filter(a => a.id !== id));
       showFeedback("✅ App removido");
     });
   }
@@ -133,6 +141,15 @@ export function AppsClient({ initialApps, machines, machineApps: initialMachineA
           <Plus className="size-4" /> Novo App
         </Button>
       </div>
+
+      {confirmDeleteId && (
+        <ConfirmDialog
+          message="Excluir este app? Esta ação não pode ser desfeita."
+          onConfirm={confirmDelete}
+          onCancel={() => setConfirmDeleteId(null)}
+          loading={isPending}
+        />
+      )}
 
       {/* Feedback */}
       {feedback && (

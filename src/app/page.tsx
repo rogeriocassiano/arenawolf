@@ -2,7 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { Monitor, Gamepad2, Clock, MapPin, Calendar, Shield, Zap, Trophy } from "lucide-react";
 
+function isOpenNow() {
+  const now = new Date();
+  const bh = new Date(now.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+  const h = bh.getHours();
+  return h >= 8 && h < 22;
+}
+
 export default function Home() {
+  const open = isOpenNow();
   return (
     <div className="min-h-screen bg-wolf-bg bg-grid">
       {/* Navbar */}
@@ -40,10 +48,10 @@ export default function Home() {
             className="rounded-3xl shadow-2xl shadow-wolf-blue/30 glow-blue"
             priority
           />
-          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">
-            <span className="size-2 rounded-full bg-emerald-400 pulse-dot" />
-            <span className="text-xs text-emerald-400 font-[family-name:var(--font-rajdhani)] font-semibold tracking-wide">
-              Aberto agora · 08:00 às 22:00
+          <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border ${open ? "bg-emerald-500/15 border-emerald-500/30" : "bg-wolf-muted/10 border-wolf-muted/20"}`}>
+            <span className={`size-2 rounded-full ${open ? "bg-emerald-400 pulse-dot" : "bg-wolf-muted"}`} />
+            <span className={`text-xs font-[family-name:var(--font-rajdhani)] font-semibold tracking-wide ${open ? "text-emerald-400" : "text-wolf-muted"}`}>
+              {open ? "Aberto agora · 08:00 às 22:00" : "Fechado · Abre às 08:00"}
             </span>
           </div>
         </div>

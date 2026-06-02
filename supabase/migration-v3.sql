@@ -104,13 +104,4 @@ INSERT INTO public.products (name, price, stock, category, active) VALUES
   ('Cup Noodles',        6.00, 15, 'Snack',  TRUE)
 ON CONFLICT DO NOTHING;
 
--- 13. Seed de eventos de exemplo
-INSERT INTO public.events (title, type, description, start_at, end_at, price, max_slots, active) VALUES
-  ('Corujão de Sexta — PC + PS5', 'corujao', 'Noite épica de sexta para sábado. R$8/hora nas máquinas!', NOW() + INTERVAL '2 days', NOW() + INTERVAL '3 days', 8.00, 50, TRUE),
-  ('Wolf Cup CS2 — Abertura', 'campeonato', 'Campeonato de CS2 com premiação de R$500. Inscrições abertas.', NOW() + INTERVAL '7 days', NOW() + INTERVAL '8 days', 0.00, 16, TRUE)
-ON CONFLICT DO NOTHING;
-
--- 14. Seed de promoção de exemplo
-INSERT INTO public.promotions (title, description, discount_type, value, valid_from, valid_until, active) VALUES
-  ('Desconto Corujão', 'R$2 de desconto na hora entre 22h e 6h nos finais de semana!', 'fixed', 2.00, NOW(), NOW() + INTERVAL '30 days', TRUE)
-ON CONFLICT DO NOTHING;
+-- 13. (Dados de eventos e promoções devem ser cadastrados pelo painel admin em produção)

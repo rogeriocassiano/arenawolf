@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Monitor, CalendarClock, DollarSign, TrendingUp, Clock, AlertTriangle, CheckCircle2 } from "lucide-react";
-import { formatCurrency, formatMinutes } from "@/lib/utils";
+import { formatMinutes } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +24,7 @@ export default async function AdminDashboardPage() {
     supabase.from("machines").select("*"),
     supabase.from("reservations").select("*", { count: "exact", head: true }).gte("created_at", todayISO),
     supabase.from("transactions").select("amount, type").gte("created_at", todayISO).eq("type", "credit_purchase"),
-    supabase.from("reservations").select("*, machine:machines(name)").in("status", ["active"]).limit(10),
+    supabase.from("sessions").select("*, machine:machines(name), profile:profiles(nickname)").eq("status", "active").order("started_at").limit(10),
     supabase.from("support_tickets").select("*", { count: "exact", head: true }).eq("status", "open"),
   ]);
 
@@ -41,7 +41,7 @@ export default async function AdminDashboardPage() {
     { icon: Users, label: "Usuários", value: totalUsers ?? 0, color: "text-wolf-blue-light", borderColor: "border-wolf-blue/20" },
     { icon: Monitor, label: "Livres / Total", value: `${freeMachines}/${machineList.length}`, color: "text-emerald-400", borderColor: "border-emerald-500/20" },
     { icon: CalendarClock, label: "Reservas Hoje", value: todayReservations ?? 0, color: "text-wolf-amber", borderColor: "border-wolf-amber/20" },
-    { icon: DollarSign, label: "Créditos Hoje", value: formatMinutes(todayRevenue), color: "text-purple-400", borderColor: "border-purple-500/20" },
+    { icon: DollarSign, label: "Créditos Vendidos Hoje", value: formatMinutes(todayRevenue), color: "text-purple-400", borderColor: "border-purple-500/20" },
   ];
 
   return (
@@ -99,7 +99,9 @@ export default async function AdminDashboardPage() {
                       m.status === "free" ? "text-emerald-400" :
                       m.status === "busy" ? "text-wolf-red" :
                       m.status === "reserved" ? "text-wolf-amber" : "text-wolf-muted"
-                    }`}>{m.status}</span>
+                    }`}>
+                      {m.status === "free" ? "Livre" : m.status === "busy" ? "Ocupada" : m.status === "reserved" ? "Reservada" : "Manutenção"}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -123,7 +125,7 @@ export default async function AdminDashboardPage() {
                         <p className="text-sm font-[family-name:var(--font-rajdhani)] font-bold text-wolf-white">
                           {r.machine?.name}
                         </p>
-                        <p className="text-xs text-wolf-muted">{formatMinutes(r.duration_min)}</p>
+                        <p className="text-xs text-wolf-muted">{(r as {profile?: {nickname: string}}).profile?.nickname ?? "Usuário"}</p>
                       </div>
                       <span className="text-xs text-emerald-400 font-[family-name:var(--font-rajdhani)] font-bold">ATIVA</span>
                     </div>

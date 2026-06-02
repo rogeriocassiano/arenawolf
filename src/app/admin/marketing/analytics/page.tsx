@@ -154,12 +154,6 @@ export default async function MarketingAnalyticsPage() {
         </div>
       </div>
 
-      <div className="p-4 rounded-xl bg-wolf-blue/5 border border-wolf-blue/20">
-        <p className="text-xs text-wolf-muted text-center">
-          📊 Integração com Meta Ads e Google Ads disponível após configurar as conexões.
-          Métricas reais (impressões, cliques, CTR, CPC, ROAS) serão exibidas aqui automaticamente.
-        </p>
-      </div>
     </div>
   );
 }

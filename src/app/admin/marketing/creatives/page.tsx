@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Palette, Plus, X, Link as LinkIcon, Trash2, ImageIcon, FileText, Film, Sparkles, Bot, Loader2, Copy, Check, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 const ASSET_TYPES = ["image", "video", "copy", "template"];
 const typeConfig = {
@@ -39,6 +40,7 @@ export default function CreativesPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiCopied, setAiCopied] = useState(false);
   const [aiHistory, setAiHistory] = useState<{ role: string; content: string }[]>([]);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const supabase = createClient();
 
@@ -66,9 +68,9 @@ export default function CreativesPage() {
   }
 
   async function deleteAsset(id: string) {
-    if (!confirm("Excluir asset?")) return;
     await supabase.from("marketing_assets").delete().eq("id", id);
     setAssets(p => p.filter(a => a.id !== id));
+    setConfirmDeleteId(null);
   }
 
   async function generateCopy() {
@@ -175,7 +177,7 @@ export default function CreativesPage() {
                       <Icon className="size-3" />{cfg.label}
                     </div>
                   </div>
-                  <button onClick={() => deleteAsset(asset.id)} className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-wolf-red/20 text-wolf-muted hover:text-wolf-red transition-all">
+                  <button onClick={() => setConfirmDeleteId(asset.id)} className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-wolf-red/20 text-wolf-muted hover:text-wolf-red transition-all">
                     <Trash2 className="size-3.5" />
                   </button>
                 </div>
@@ -197,6 +199,14 @@ export default function CreativesPage() {
             );
           })}
         </div>
+      )}
+
+      {confirmDeleteId && (
+        <ConfirmDialog
+          message="Excluir este asset? Esta ação não pode ser desfeita."
+          onConfirm={() => deleteAsset(confirmDeleteId)}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
       )}
 
       {/* Modal */}

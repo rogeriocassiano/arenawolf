@@ -70,7 +70,7 @@ export function RankingClient({ rankings, teams, currentUserId }: Props) {
           <h1 className="font-[family-name:var(--font-orbitron)] text-2xl font-bold text-wolf-white tracking-wide">
             Ranking Arena Wolf
           </h1>
-          <p className="text-wolf-muted text-sm mt-1">Temporada 2025 · Partidas somente na Arena</p>
+          <p className="text-wolf-muted text-sm mt-1">Temporada {new Date().getFullYear()} · Partidas somente na Arena</p>
         </div>
         {tab === "times" && (
           <Button onClick={() => setShowCreateTeam(true)} size="sm" className="gap-2 shrink-0">

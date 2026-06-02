@@ -58,6 +58,8 @@ export default async function DashboardPage() {
   const freeMachines = machines.filter((m) => m.status === "free");
   const pcFree = freeMachines.filter((m) => m.type === "pc").length;
   const ps5Free = freeMachines.filter((m) => m.type === "ps5").length;
+  const pcTotal = machines.filter((m) => m.type === "pc").length;
+  const ps5Total = machines.filter((m) => m.type === "ps5").length;
 
   return (
     <div className="flex flex-col gap-6">
@@ -91,7 +93,7 @@ export default async function DashboardPage() {
               <Zap className="size-4 text-emerald-400" />
             </div>
             <p className="font-[family-name:var(--font-orbitron)] text-xl font-bold text-emerald-400">
-              {pcFree}<span className="text-wolf-muted text-sm font-normal">/10</span>
+              {pcFree}<span className="text-wolf-muted text-sm font-normal">/{pcTotal}</span>
             </p>
           </CardContent>
         </Card>
@@ -103,7 +105,7 @@ export default async function DashboardPage() {
               <Zap className="size-4 text-wolf-blue-light" />
             </div>
             <p className="font-[family-name:var(--font-orbitron)] text-xl font-bold text-wolf-blue-light">
-              {ps5Free}<span className="text-wolf-muted text-sm font-normal">/3</span>
+              {ps5Free}<span className="text-wolf-muted text-sm font-normal">/{ps5Total}</span>
             </p>
           </CardContent>
         </Card>

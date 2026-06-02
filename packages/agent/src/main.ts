@@ -38,6 +38,13 @@ function createLockScreen() {
   lockWindow.setAlwaysOnTop(true, "screen-saver");
   lockWindow.focus();
 
+  // Impedir que Alt+F4 ou qualquer sinal feche a janela de lock
+  lockWindow.on("close", (e: { preventDefault: () => void }) => { e.preventDefault(); lockWindow?.focus(); });
+
+  // Bloquear atalhos perigosos no renderer da tela de lock
+  // Reusar helper para bloquear atalhos na lock screen
+  applyKioskInputBlock(lockWindow);
+
   disableSystemKeys();
 }
 
@@ -45,10 +52,10 @@ function createOverlay() {
   const { width } = screen.getPrimaryDisplay().workAreaSize;
 
   overlayWindow = new BrowserWindow({
-    width: 300,
-    height: 120,
-    x: width - 320,
-    y: 20,
+    width: 260,
+    height: 105,
+    x: width - 275,
+    y: 16,
     frame: false,
     alwaysOnTop: true,
     skipTaskbar: true,
@@ -63,7 +70,9 @@ function createOverlay() {
   });
 
   overlayWindow.loadFile(path.join(__dirname, "../renderer/overlay.html"));
-  overlayWindow.setIgnoreMouseEvents(true);
+  // forward:true = clicks nos pixels transparentes passam para os apps normalmente
+  // O widget em si (área opaca) bloqueia mouse events por design (overlay é só visual)
+  overlayWindow.setIgnoreMouseEvents(true, { forward: true });
 }
 
 function destroyOverlay() {
@@ -75,6 +84,7 @@ function destroyOverlay() {
 
 function destroyLockScreen() {
   if (lockWindow && !lockWindow.isDestroyed()) {
+    lockWindow.removeAllListeners("close"); // remover interceptor antes de fechar
     lockWindow.close();
     lockWindow = null;
   }
@@ -102,6 +112,23 @@ function showHomeScreen(apps: unknown[], nickname: string, credits: number, ends
   showActiveSession();
 }
 
+function applyKioskInputBlock(win: BrowserWindow) {
+  win.webContents.on("before-input-event", (_event: { preventDefault: () => void }, input: { alt: boolean; meta: boolean; control: boolean; shift: boolean; key: string }) => {
+    const blocked =
+      (input.alt && input.key === "F4") ||
+      (input.alt && input.key === "Tab") ||
+      (input.meta && input.key === "d") ||
+      (input.meta && input.key === "Tab") ||
+      (input.meta && input.key === "r") ||
+      (input.meta && input.key === "l") ||
+      (input.meta && input.key === "e") ||
+      (input.control && input.shift && input.key === "Escape") ||
+      (input.control && input.alt && input.key === "Delete");
+    if (blocked) _event.preventDefault();
+  });
+  win.webContents.on("context-menu", (e: { preventDefault: () => void }) => { e.preventDefault(); });
+}
+
 function createHomeWindow() {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
   homeWindow = new BrowserWindow({
@@ -114,10 +141,23 @@ function createHomeWindow() {
     },
   });
   homeWindow.loadFile(path.join(__dirname, "../renderer/home.html"));
+
+  // Bloquear atalhos na home igual à lock screen
+  applyKioskInputBlock(homeWindow);
+
+  // Se o usuário fechar a home por qualquer meio, voltar para lock
+  homeWindow.on("close", (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    homeWindow?.focus();
+  });
 }
 
 function destroyHomeWindow() {
-  if (homeWindow && !homeWindow.isDestroyed()) { homeWindow.close(); homeWindow = null; }
+  if (homeWindow && !homeWindow.isDestroyed()) {
+    homeWindow.removeAllListeners("close");
+    homeWindow.close();
+    homeWindow = null;
+  }
 }
 
 function showActiveSession() {
@@ -128,7 +168,13 @@ function showActiveSession() {
   if (sessionCheckInterval) clearInterval(sessionCheckInterval);
   sessionCheckInterval = setInterval(() => {
     const remaining = getRemainingSeconds();
-    overlayWindow?.webContents.send("tick", { remaining, session: getCurrentSession() });
+    const session = getCurrentSession();
+    // creditsRemaining = minutos restantes na sessão (tempo que ainda será consumido)
+    const creditsRemaining = Math.ceil(remaining / 60);
+    overlayWindow?.webContents.send("tick", {
+      remaining,
+      session: session ? { ...session, creditsMinutes: creditsRemaining } : null,
+    });
     if (remaining <= 0) {
       handleSessionExpired();
     }
