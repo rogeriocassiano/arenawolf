@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Machine, MachineStatus } from "@/lib/types";
 import { StatusBadge } from "@/components/machines/StatusBadge";
 import { formatCurrency } from "@/lib/utils";
-import { Monitor, Gamepad2, Edit2 } from "lucide-react";
+import { Monitor, Gamepad2, Copy, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,14 @@ interface AdminMachinesClientProps {
 export function AdminMachinesClient({ machines: initial }: AdminMachinesClientProps) {
   const [machines, setMachines] = useState<Machine[]>(initial);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
   const supabase = createClient();
+
+  const copyId = (id: string) => {
+    navigator.clipboard.writeText(id);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
+  };
 
   const updateStatus = async (id: string, status: MachineStatus) => {
     setUpdating(id);
@@ -51,6 +58,7 @@ export function AdminMachinesClient({ machines: initial }: AdminMachinesClientPr
           <thead>
             <tr className="border-b border-wolf-blue/15 bg-wolf-surface-2">
               <th className="px-4 py-3 text-left text-xs font-[family-name:var(--font-rajdhani)] font-bold text-wolf-muted tracking-wider uppercase">Máquina</th>
+              <th className="px-4 py-3 text-left text-xs font-[family-name:var(--font-rajdhani)] font-bold text-wolf-muted tracking-wider uppercase">ID (UUID)</th>
               <th className="px-4 py-3 text-left text-xs font-[family-name:var(--font-rajdhani)] font-bold text-wolf-muted tracking-wider uppercase">Status</th>
               <th className="px-4 py-3 text-left text-xs font-[family-name:var(--font-rajdhani)] font-bold text-wolf-muted tracking-wider uppercase">Preço/h</th>
               <th className="px-4 py-3 text-left text-xs font-[family-name:var(--font-rajdhani)] font-bold text-wolf-muted tracking-wider uppercase">Alterar Status</th>
@@ -67,6 +75,18 @@ export function AdminMachinesClient({ machines: initial }: AdminMachinesClientPr
               >
                 <td className="px-4 py-3">
                   <span className="font-[family-name:var(--font-orbitron)] font-bold text-wolf-white text-sm">{m.name}</span>
+                </td>
+                <td className="px-4 py-3">
+                  <button
+                    onClick={() => copyId(m.id)}
+                    className="flex items-center gap-1.5 group"
+                    title="Clique para copiar o ID"
+                  >
+                    <span className="font-mono text-xs text-wolf-muted group-hover:text-wolf-white transition-colors truncate max-w-[140px]">{m.id}</span>
+                    {copied === m.id
+                      ? <Check className="size-3 text-emerald-400 shrink-0" />
+                      : <Copy className="size-3 text-wolf-muted group-hover:text-wolf-blue-light shrink-0" />}
+                  </button>
                 </td>
                 <td className="px-4 py-3">
                   <StatusBadge status={m.status} />
