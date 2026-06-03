@@ -240,7 +240,12 @@ ipcMain.handle("end-session", async () => {
 
 // IPC: obter configuração atual
 ipcMain.handle("get-config", () => getConfig());
-ipcMain.handle("set-config", (_event: IpcMainInvokeEvent, partial: Record<string, string>) => { setConfig(partial); return getConfig(); });
+ipcMain.handle("set-config", (_event: IpcMainInvokeEvent, partial: Record<string, string>) => {
+  setConfig(partial);
+  // Relancar o agente para ir direto à tela de lock com a nova configuração
+  setTimeout(() => { app.relaunch(); app.exit(0); }, 800);
+  return getConfig();
+});
 
 app.whenReady().then(async () => {
   const cfg = getConfig();
