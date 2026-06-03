@@ -45,7 +45,7 @@ export function StoreClient({ initialCredits, products }: StoreClientProps) {
       if (res.error) {
         showFeedback("error", res.error);
       } else {
-        setCredits(res.total ?? credits + pkg.minutes + pkg.bonus_minutes);
+        setCredits(credits);
         showFeedback("success", `✅ Solicitação enviada! Dirija-se ao balcão para pagar e liberar +${formatMinutes(pkg.minutes + pkg.bonus_minutes)}.`);
       }
     });

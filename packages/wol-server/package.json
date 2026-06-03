@@ -1,0 +1,14 @@
+{
+  "name": "arena-wolf-wol-server",
+  "version": "1.0.0",
+  "description": "Arena Wolf — Servidor Wake-on-LAN local (rodar na lan house)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "wakeonlan": "^3.1.0"
+  }
+}

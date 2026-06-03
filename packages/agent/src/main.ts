@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain, screen, nativeTheme, IpcMainInvokeEvent } from "electron";
 import path from "path";
 import { getConfig, isConfigured, setConfig } from "./config";
-import { validatePin, endCurrentSession, subscribeToSession, getRemainingSeconds, getCurrentSession, loginWithCredentials, fetchMachineApps } from "./session";
+import { validatePin, endCurrentSession, subscribeToSession, subscribeToMachineControl, getRemainingSeconds, getCurrentSession, loginWithCredentials, fetchMachineApps } from "./session";
 import { lockScreen, disableSystemKeys, enableSystemKeys } from "./lock";
 
 nativeTheme.themeSource = "dark";
@@ -10,6 +10,7 @@ let lockWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
 let homeWindow: BrowserWindow | null = null;
 let unsubscribeSession: (() => void) | null = null;
+let unsubscribeMachineControl: (() => void) | null = null;
 let sessionCheckInterval: NodeJS.Timeout | null = null;
 
 function createLockScreen() {
@@ -52,16 +53,16 @@ function createOverlay() {
   const { width } = screen.getPrimaryDisplay().workAreaSize;
 
   overlayWindow = new BrowserWindow({
-    width: 260,
-    height: 105,
-    x: width - 275,
+    width: 220,
+    height: 175,
+    x: width - 235,
     y: 16,
     frame: false,
     alwaysOnTop: true,
     skipTaskbar: true,
     transparent: true,
     resizable: false,
-    focusable: false,
+    focusable: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -70,9 +71,9 @@ function createOverlay() {
   });
 
   overlayWindow.loadFile(path.join(__dirname, "../renderer/overlay.html"));
-  // forward:true = clicks nos pixels transparentes passam para os apps normalmente
-  // O widget em si (área opaca) bloqueia mouse events por design (overlay é só visual)
-  overlayWindow.setIgnoreMouseEvents(true, { forward: true });
+  overlayWindow.setAlwaysOnTop(true, "screen-saver");
+  // Pixels transparentes passam os clicks para os apps, pixels opacos (widget) são clicáveis
+  overlayWindow.setIgnoreMouseEvents(false);
 }
 
 function destroyOverlay() {
@@ -98,17 +99,12 @@ function showLockedState() {
   }
 }
 
-function showHomeScreen(apps: unknown[], nickname: string, credits: number, endsAt: string) {
+function showHomeScreen(_apps: unknown[], _nickname: string, _credits: number, _endsAt: string) {
   destroyLockScreen();
-  if (!homeWindow || homeWindow.isDestroyed()) {
-    createHomeWindow();
-  }
-  // Enviar dados para a home após carregar
-  homeWindow?.webContents.once("did-finish-load", () => {
-    homeWindow?.webContents.send("session-data", { apps, nickname, credits, endsAt });
-  });
-  // Se já carregou, enviar direto
-  homeWindow?.webContents.send("session-data", { apps, nickname, credits, endsAt });
+  destroyHomeWindow();
+  // Após fechar o lock, o Windows fica visível normalmente.
+  // O overlay fica no canto superior direito com countdown + botão encerrar.
+  // nickname/endsAt já estão no currentSession — o tick os usa diretamente.
   showActiveSession();
 }
 
@@ -256,12 +252,29 @@ app.whenReady().then(async () => {
     return;
   }
 
-  // Subscrever Realtime para mudanças de sessão externas (admin encerrando)
-  unsubscribeSession = subscribeToSession(cfg.machineId, (session) => {
+  // Subscrever Realtime para comandos de controle da máquina (shutdown remoto)
+  unsubscribeMachineControl = subscribeToMachineControl(cfg.machineId, async () => {
+    // Encerrar sessão ativa se houver, mostrar lock enquanto PC conta 10s para desligar
+    if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+    await endCurrentSession("system");
+    destroyOverlay();
+    destroyHomeWindow();
+    showLockedState();
+    // Lock exibe mensagem de shutdown (agente fecha sozinho quando o Windows desligar)
+  });
+
+  // Subscrever Realtime para mudanças de sessão externas (admin iniciando ou encerrando)
+  unsubscribeSession = subscribeToSession(cfg.machineId, async (session) => {
     if (!session) {
+      // Admin encerrou sessão remotamente
       if (sessionCheckInterval) clearInterval(sessionCheckInterval);
       destroyOverlay();
+      destroyHomeWindow();
       showLockedState();
+    } else {
+      // Admin iniciou sessão remotamente via painel operador
+      const apps = await fetchMachineApps();
+      showHomeScreen(apps, session.nickname, session.creditsMinutes, session.endsAt.toISOString());
     }
   });
 
@@ -283,11 +296,20 @@ function createSetupWindow() {
 }
 
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") app.quit();
+  // Não encerrar automaticamente: o overlay não aparece na taskbar,
+  // então durante uma sessão ativa o "todas as janelas fechadas" seria
+  // disparado erroneamente. Só encerramos via before-quit intencional.
+  // No macOS nunca encerramos ao fechar janelas (comportamento padrão).
+  if (process.platform === "darwin") return;
+  // Em Windows, só encerrar se não houver sessão ativa
+  if (!getCurrentSession() && !overlayWindow) {
+    app.quit();
+  }
 });
 
 app.on("before-quit", async () => {
   if (unsubscribeSession) unsubscribeSession();
+  if (unsubscribeMachineControl) unsubscribeMachineControl();
   if (sessionCheckInterval) clearInterval(sessionCheckInterval);
   await endCurrentSession("system");
   enableSystemKeys();

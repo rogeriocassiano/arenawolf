@@ -228,11 +228,13 @@ export function OperatorClient({ initialMachines, initialSessions, users }: Oper
     setLoading(true);
     setConfirmEndId(null);
     try {
-      await fetch("/api/session/end", {
+      const res = await fetch("/api/session/end", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: confirmEndId, ended_by: "admin" }),
       });
+      const data = await res.json();
+      if (!res.ok) { showToast(data.error ?? "Erro ao encerrar sessão", "error"); return; }
       showToast("✅ Sessão encerrada");
       await refreshSessions();
       await refreshMachines();
@@ -245,11 +247,13 @@ export function OperatorClient({ initialMachines, initialSessions, users }: Oper
     if (!addTimeModal) return;
     setLoading(true);
     try {
-      await fetch("/api/session/add-time", {
+      const res = await fetch("/api/session/add-time", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: addTimeModal.sessionId, minutes: Number(addMinutes) }),
       });
+      const data = await res.json();
+      if (!res.ok) { showToast(data.error ?? "Erro ao adicionar tempo", "error"); return; }
       setAddTimeModal(null);
       showToast(`✅ +${addMinutes}min adicionados`);
       await refreshSessions();

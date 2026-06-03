@@ -1,4 +1,5 @@
-import { createClient, RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
+import { createClient, RealtimeChannel } from "@supabase/supabase-js";
+import { exec } from "child_process";
 import { getConfig } from "./config";
 
 export interface AppInfo {
@@ -79,7 +80,31 @@ export function subscribeToSession(machineId: string, onChange: SessionChangeHan
       "postgres_changes",
       { event: "*", schema: "public", table: "sessions", filter: `machine_id=eq.${machineId}` },
       async (payload) => {
-        const row = payload.new as { status?: string; ends_at?: string; id?: string } | null;
+        const row = payload.new as { status?: string; ends_at?: string; id?: string; user_id?: string } | null;
+
+        // Operador iniciou sessão pelo painel → INSERT com status active
+        if (payload.eventType === "INSERT" && row?.status === "active" && row.ends_at && row.id && row.user_id) {
+          const cfg = getConfig();
+          const supabase = createClient(cfg.supabaseUrl, cfg.supabaseKey);
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("nickname, credits_minutes")
+            .eq("id", row.user_id)
+            .single();
+
+          const session: SessionState = {
+            sessionId: row.id,
+            userId: row.user_id,
+            nickname: profile?.nickname ?? "Usuário",
+            creditsMinutes: profile?.credits_minutes ?? 0,
+            endsAt: new Date(row.ends_at),
+            machineId: machineId,
+          };
+          currentSession = session;
+          onChange(session);
+          return;
+        }
+
         if (payload.eventType === "UPDATE" || payload.eventType === "DELETE") {
           if (!row || row.status !== "active") {
             currentSession = null;
@@ -95,6 +120,37 @@ export function subscribeToSession(machineId: string, onChange: SessionChangeHan
 
   return () => {
     if (channel) supabase.removeChannel(channel);
+  };
+}
+
+let machineChannel: RealtimeChannel | null = null;
+
+export function subscribeToMachineControl(machineId: string, onShutdown: () => void): () => void {
+  const cfg = getConfig();
+  const supabase = createClient(cfg.supabaseUrl, cfg.supabaseKey);
+
+  machineChannel = supabase
+    .channel(`machine-control-${machineId}`)
+    .on(
+      "postgres_changes",
+      { event: "UPDATE", schema: "public", table: "machines", filter: `id=eq.${machineId}` },
+      async (payload) => {
+        const row = payload.new as { shutdown_requested?: boolean } | null;
+        if (row?.shutdown_requested === true) {
+          // Limpar a flag no banco antes de desligar
+          const admin = createClient(cfg.supabaseUrl, cfg.supabaseKey);
+          await admin.from("machines").update({ shutdown_requested: false }).eq("id", machineId);
+          onShutdown();
+          if (process.platform === "win32") {
+            exec("shutdown /s /t 10", () => {});
+          }
+        }
+      }
+    )
+    .subscribe();
+
+  return () => {
+    if (machineChannel) supabase.removeChannel(machineChannel);
   };
 }
 

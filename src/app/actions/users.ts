@@ -41,6 +41,8 @@ export async function deleteUser(userId: string) {
 }
 
 export async function updateUserRole(userId: string, role: string) {
+  const validRoles = ["user", "staff", "admin"];
+  if (!validRoles.includes(role)) return { error: `Role inválida: ${role}` };
   await requireAdmin();
   const admin = await createAdminClient();
   const { error } = await admin.from("profiles").update({ role }).eq("id", userId);
@@ -50,6 +52,7 @@ export async function updateUserRole(userId: string, role: string) {
 }
 
 export async function addCredits(userId: string, minutes: number) {
+  if (!minutes || minutes <= 0) return { error: "Quantidade de minutos deve ser maior que zero." };
   const { user } = await requireAdmin();
   const admin = await createAdminClient();
   const { data: profile } = await admin.from("profiles").select("credits_minutes").eq("id", userId).single();

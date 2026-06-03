@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <title>Arena Wolf — Sessão</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       background: transparent;
@@ -101,6 +101,40 @@
       font-weight: 700;
       color: #5b9cf6;
     }
+
+    .end-btn {
+      margin-top: 0.4rem;
+      width: 100%;
+      padding: 0.35rem 0;
+      background: rgba(230,57,70,0.15);
+      border: 1px solid rgba(230,57,70,0.4);
+      border-radius: 0.5rem;
+      color: #ef4444;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .end-btn:hover { background: rgba(230,57,70,0.3); }
+
+    .confirm-row {
+      display: none;
+      flex-direction: column;
+      gap: 0.3rem;
+      margin-top: 0.3rem;
+    }
+    .confirm-row.visible { display: flex; }
+    .confirm-text { font-size: 0.7rem; color: #ef4444; text-align: center; }
+    .confirm-actions { display: flex; gap: 0.35rem; }
+    .confirm-yes, .confirm-no {
+      flex: 1; padding: 0.3rem 0; border-radius: 0.4rem;
+      font-family: 'Rajdhani', sans-serif; font-size: 0.72rem; font-weight: 700;
+      cursor: pointer; border: 1px solid;
+    }
+    .confirm-yes { background: rgba(230,57,70,0.2); border-color: rgba(230,57,70,0.5); color: #ef4444; }
+    .confirm-no  { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); color: #9ca3af; }
   </style>
 </head>
 <body>
@@ -114,6 +148,14 @@
     <div class="credits-row">
       <span class="credits-label">Créditos:</span>
       <span class="credits-value" id="creditsEl">--</span>
+    </div>
+    <button class="end-btn" id="endBtn">■ Encerrar Sessão</button>
+    <div class="confirm-row" id="confirmRow">
+      <span class="confirm-text">Tem certeza?</span>
+      <div class="confirm-actions">
+        <button class="confirm-no" id="confirmNo">Cancelar</button>
+        <button class="confirm-yes" id="confirmYes">Encerrar</button>
+      </div>
     </div>
   </div>
 
@@ -141,6 +183,18 @@
       if (h > 0) return `${h}h`;
       return `${m}min`;
     }
+
+    document.getElementById('endBtn').addEventListener('click', () => {
+      document.getElementById('confirmRow').classList.add('visible');
+      document.getElementById('endBtn').style.display = 'none';
+    });
+    document.getElementById('confirmNo').addEventListener('click', () => {
+      document.getElementById('confirmRow').classList.remove('visible');
+      document.getElementById('endBtn').style.display = 'block';
+    });
+    document.getElementById('confirmYes').addEventListener('click', async () => {
+      await window.agent.endSession();
+    });
 
     window.agent.onTick(({ remaining, session }) => {
       timerEl.textContent = formatTime(remaining);

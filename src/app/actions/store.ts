@@ -4,12 +4,12 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
 const CREDIT_PACKAGES = [
-  { id: "1h",      minutes: 60,  total_minutes: 60,  price_cents: 1000 },
-  { id: "2h",      minutes: 120, total_minutes: 120, price_cents: 2000 },
-  { id: "3h",      minutes: 180, total_minutes: 240, price_cents: 3000 },
-  { id: "5h",      minutes: 300, total_minutes: 300, price_cents: 5000 },
-  { id: "corujao", minutes: 480, total_minutes: 480, price_cents: 7000 },
-  { id: "10h",     minutes: 600, total_minutes: 720, price_cents: 9000 },
+  { id: "1h",      minutes: 60,  price_cents: 1000 },
+  { id: "2h",      minutes: 120, price_cents: 2000 },
+  { id: "3h",      minutes: 180, price_cents: 3000 },
+  { id: "5h",      minutes: 300, price_cents: 5000 },
+  { id: "corujao", minutes: 480, price_cents: 7000 },
+  { id: "10h",     minutes: 600, price_cents: 9000 },
 ];
 
 export async function purchaseCreditPackage(packageId: string) {
@@ -27,17 +27,17 @@ export async function purchaseCreditPackage(packageId: string) {
     .single();
   if (!profile) return { error: "Perfil não encontrado" };
 
-  // Registra a solicitação — créditos são liberados pelo operador no balcão
+  // Registra a solicitação — créditos são liberados pelo operador no balcão após pagamento
   const { error: txError } = await supabase.from("transactions").insert({
     user_id: user.id,
     type: "credit_request",
-    amount: pkg.total_minutes,
-    description: `Solicitação de pacote "${pkg.id}" — ${pkg.total_minutes}min (aguardando pagamento no balcão)`,
+    amount: pkg.minutes,
+    description: `Solicitação de pacote "${pkg.id}" — ${pkg.minutes}min (aguardando pagamento no balcão)`,
   });
   if (txError) return { error: txError.message };
 
   revalidatePath("/store");
-  return { success: true, added: pkg.total_minutes, total: profile.credits_minutes };
+  return { success: true, requested: pkg.minutes };
 }
 
 export async function purchaseProduct(productId: string) {

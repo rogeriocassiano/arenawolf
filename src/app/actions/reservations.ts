@@ -65,7 +65,7 @@ export async function createReservation(
   }
 
   // Cria reserva e debita créditos atomicamente
-  const { error: reservationError } = await supabase.from("reservations").insert({
+  const { data: newReservation, error: reservationError } = await supabase.from("reservations").insert({
     user_id: user.id,
     machine_id,
     start_at,
@@ -74,9 +74,9 @@ export async function createReservation(
     status: "pending",
     total_price,
     paid_via: "credits",
-  });
+  }).select("id").single();
 
-  if (reservationError) return { error: "Erro ao criar reserva." };
+  if (reservationError || !newReservation) return { error: "Erro ao criar reserva." };
 
   const { error: creditError } = await supabase
     .from("profiles")
@@ -84,8 +84,8 @@ export async function createReservation(
     .eq("id", user.id);
 
   if (creditError) {
-    // Rollback: cancelar a reserva criada
-    await supabase.from("reservations").update({ status: "cancelled" }).eq("user_id", user.id).eq("status", "pending").gte("created_at", new Date(Date.now() - 5000).toISOString());
+    // Rollback seguro: cancelar exatamente a reserva recém-criada pelo id
+    await supabase.from("reservations").update({ status: "cancelled" }).eq("id", newReservation.id);
     return { error: "Erro ao debitar créditos. Tente novamente." };
   }
 

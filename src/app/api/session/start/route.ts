@@ -17,6 +17,9 @@ export async function POST(request: NextRequest) {
     if (!machine_id || !user_id || !minutes) {
       return NextResponse.json({ error: "machine_id, user_id e minutes são obrigatórios" }, { status: 400 });
     }
+    if (typeof minutes !== "number" || minutes < 1 || minutes > 480) {
+      return NextResponse.json({ error: "minutes deve estar entre 1 e 480" }, { status: 400 });
+    }
 
     // Verificar se a máquina existe e está livre
     const { data: machine } = await supabase
@@ -42,12 +45,19 @@ export async function POST(request: NextRequest) {
 
     if (rpcError) return NextResponse.json({ error: rpcError.message }, { status: 500 });
 
+    // Buscar ends_at real do banco (evita clock skew entre Node.js e Postgres)
+    const { data: sessionRow } = await supabase
+      .from("sessions")
+      .select("ends_at")
+      .eq("id", sessionId)
+      .single();
+
     return NextResponse.json({
       session_id: sessionId,
       machine: machine.name,
       user: targetProfile.nickname,
       minutes,
-      ends_at: new Date(Date.now() + minutes * 60 * 1000).toISOString(),
+      ends_at: sessionRow?.ends_at ?? new Date(Date.now() + minutes * 60 * 1000).toISOString(),
     });
   } catch (err) {
     console.error("[session/start]", err);
