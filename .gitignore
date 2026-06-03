@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# electron agent — build output (binários grandes demais para GitHub)
+packages/agent/release/
+packages/agent/dist/
+packages/agent/node_modules/
