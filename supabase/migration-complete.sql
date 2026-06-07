@@ -227,9 +227,12 @@ CREATE TABLE IF NOT EXISTS subscriptions (
   stripe_subscription_id TEXT,
   stripe_customer_id TEXT,
   created_at TIMESTAMPTZ DEFAULT now(),
-  cancelled_at TIMESTAMPTZ,
-  UNIQUE(user_id, status) WHERE status = 'active'
+  cancelled_at TIMESTAMPTZ
 );
+
+-- Partial unique index: um usuário só pode ter uma assinatura ativa
+CREATE UNIQUE INDEX IF NOT EXISTS idx_subscriptions_one_active_per_user 
+ON subscriptions(user_id) WHERE status = 'active';
 
 -- 3. PROGRAMA DE INDICAÇÃO
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS referral_code TEXT UNIQUE;
