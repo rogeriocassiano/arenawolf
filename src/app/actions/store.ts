@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { creditReferralReward } from "./referral";
 
 const CREDIT_PACKAGES = [
   { id: "1h",      minutes: 60,  price_cents: 1000 },
@@ -70,6 +71,39 @@ export async function purchaseProduct(productId: string) {
     description: `Compra: ${product.name}`,
   });
 
+  // CASHBACK: 10% do valor em créditos
+  const cashbackMinutes = Math.floor(product.price * 0.10 * 6); // 10% em minutos (R$ 1 = 6min)
+  if (cashbackMinutes > 0) {
+    const admin = await createAdminClient();
+    await admin.from("credit_balances").insert({
+      user_id: user.id,
+      amount: cashbackMinutes,
+      type: "cashback",
+      expires_at: new Date(Date.now() + 30 * 86400000).toISOString(), // expira em 30 dias
+      source: `Cashback: ${product.name}`,
+    });
+    await admin.from("transactions").insert({
+      user_id: user.id,
+      type: "credit_add",
+      amount: cashbackMinutes,
+      description: `Cashback: ${product.name}`,
+      related_type: "cashback",
+    });
+  }
+
+  // Verifica se é primeira compra do usuário (para recompensar quem indicou)
+  const { count: previousPurchases } = await supabase
+    .from("transactions")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("type", "product");
+
+  if (previousPurchases === 1) {
+    // Primeira compra! Recompensar quem indicou
+    await creditReferralReward(user.id);
+  }
+
   revalidatePath("/store");
-  return { success: true, product: product.name };
+  revalidatePath("/dashboard");
+  return { success: true, product: product.name, cashback: cashbackMinutes };
 }
