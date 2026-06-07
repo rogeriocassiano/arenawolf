@@ -44,3 +44,6 @@ next-env.d.ts
 packages/agent/release/
 packages/agent/dist/
 packages/agent/node_modules/
+
+# Local Netlify folder
+.netlify
