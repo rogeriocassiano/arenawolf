@@ -53,9 +53,16 @@ CREATE POLICY "Anyone authenticated can view machine apps" ON public.machine_app
 CREATE POLICY "Admin can manage machine apps" ON public.machine_apps
   FOR ALL USING (public.is_staff());
 
--- Realtime
-ALTER PUBLICATION supabase_realtime ADD TABLE public.apps;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.machine_apps;
+-- Realtime (idempotente)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'apps') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.apps;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'machine_apps') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.machine_apps;
+  END IF;
+END $$;
 
 -- Atualizar sessions
 ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS login_method TEXT DEFAULT 'pin'
@@ -350,9 +357,16 @@ CREATE POLICY "Admins gerenciam preços dinâmicos" ON dynamic_pricing_rules FOR
   SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'staff')));
 CREATE POLICY "Todos veem regras ativas" ON dynamic_pricing_rules FOR SELECT USING (active = TRUE);
 
--- 10. REALTIME
-ALTER PUBLICATION supabase_realtime ADD TABLE subscriptions;
-ALTER PUBLICATION supabase_realtime ADD TABLE credit_balances;
+-- 10. REALTIME (idempotente)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'subscriptions') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE subscriptions;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'credit_balances') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE credit_balances;
+  END IF;
+END $$;
 
 -- Seeding planos
 INSERT INTO subscription_plans (id, name, description, monthly_price, credits_per_month, active) VALUES
