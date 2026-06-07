@@ -37,6 +37,12 @@ CREATE INDEX IF NOT EXISTS idx_apps_active ON public.apps(active);
 ALTER TABLE public.apps ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.machine_apps ENABLE ROW LEVEL SECURITY;
 
+-- Drop policies se existirem (idempotente)
+DROP POLICY IF EXISTS "Anyone authenticated can view active apps" ON public.apps;
+DROP POLICY IF EXISTS "Admin can manage apps" ON public.apps;
+DROP POLICY IF EXISTS "Anyone authenticated can view machine apps" ON public.machine_apps;
+DROP POLICY IF EXISTS "Admin can manage machine apps" ON public.machine_apps;
+
 CREATE POLICY "Anyone authenticated can view active apps" ON public.apps
   FOR SELECT TO authenticated USING (active = TRUE);
 CREATE POLICY "Admin can manage apps" ON public.apps

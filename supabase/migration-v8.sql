@@ -161,6 +161,16 @@ ALTER TABLE referral_rewards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE credit_balances ENABLE ROW LEVEL SECURITY;
 ALTER TABLE dynamic_pricing_rules ENABLE ROW LEVEL SECURITY;
 
+-- Drop policies existentes (idempotente)
+DROP POLICY IF EXISTS "Admins gerenciam tudo" ON promo_codes;
+DROP POLICY IF EXISTS "Usuário vê próprios uses" ON promo_code_uses;
+DROP POLICY IF EXISTS "Todos veem planos ativos" ON subscription_plans;
+DROP POLICY IF EXISTS "Usuário vê própria assinatura" ON subscriptions;
+DROP POLICY IF EXISTS "Admins veem todas assinaturas" ON subscriptions;
+DROP POLICY IF EXISTS "Usuário vê próprios créditos" ON credit_balances;
+DROP POLICY IF EXISTS "Admins gerenciam preços dinâmicos" ON dynamic_pricing_rules;
+DROP POLICY IF EXISTS "Todos veem regras ativas" ON dynamic_pricing_rules;
+
 -- Políticas simplificadas (quem pode ver o quê)
 CREATE POLICY "Admins gerenciam tudo" ON promo_codes FOR ALL USING (EXISTS (
   SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'staff')
