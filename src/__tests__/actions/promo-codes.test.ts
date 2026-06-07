@@ -200,6 +200,7 @@ describe("redeemPromoCode", () => {
               }),
             }),
           }),
+          update: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({}) }),
         };
       }
       if (table === "promo_code_uses") {
@@ -220,7 +221,7 @@ describe("redeemPromoCode", () => {
       if (table === "transactions") {
         return { insert: jest.fn().mockResolvedValue({}) };
       }
-      return { update: jest.fn().mockResolvedValue({}) };
+      return {};
     });
 
     const result = await redeemPromoCode("WOLF50");

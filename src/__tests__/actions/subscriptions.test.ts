@@ -117,7 +117,7 @@ describe("addSubscriptionCredits", () => {
               }),
             }),
           }),
-          update: jest.fn().mockResolvedValue({}),
+          update: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({}) }),
         };
       }
       if (table === "credit_balances") {
@@ -187,7 +187,9 @@ describe("cancelSubscription", () => {
               }),
             }),
           }),
-          update: jest.fn().mockResolvedValue({}),
+          update: jest.fn().mockReturnValue({ 
+            eq: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({}) }) 
+          }),
         };
       }
       return {};

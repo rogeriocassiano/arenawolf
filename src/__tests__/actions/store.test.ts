@@ -13,6 +13,12 @@ jest.mock("@/lib/supabase/server", () => ({
       from: mockFrom,
     })
   ),
+  createAdminClient: jest.fn(() =>
+    Promise.resolve({
+      auth: { getUser: mockGetUser },
+      from: mockFrom,
+    })
+  ),
 }));
 jest.mock("next/cache", () => ({ revalidatePath: jest.fn() }));
 
@@ -146,17 +152,30 @@ describe("purchaseProduct", () => {
     expect(result.error).toMatch(/esgotado/i);
   });
 
-  it("returns success with product name on valid purchase", async () => {
+  it("returns success with product name and cashback on valid purchase", async () => {
     mockFrom.mockImplementation((table: string) => {
       if (table === "products") return {
         select: () => ({ eq: () => ({ eq: () => ({ single: () => Promise.resolve({ data: mockProduct }) }) }) }),
         update: () => ({ eq: () => ({ gt: () => ({ select: () => Promise.resolve({ data: [{ id: "prod-1" }], error: null }) }) }) }),
       };
-      if (table === "transactions") return { insert: jest.fn().mockResolvedValue({ error: null }) };
+      if (table === "transactions") return { 
+        insert: jest.fn().mockResolvedValue({ error: null }),
+        select: () => ({ eq: () => ({ eq: () => Promise.resolve({ count: 1 }) }) }),
+      };
+      if (table === "credit_balances") return { insert: jest.fn().mockResolvedValue({ error: null }) };
+      if (table === "profiles") return { 
+        select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: { referral_code: "ABC123" } }) }) }),
+        update: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({}) }),
+      };
+      if (table === "referral_rewards") return { 
+        select: () => ({ eq: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null }) }) }) }),
+        insert: jest.fn().mockReturnValue({ select: () => ({ single: () => Promise.resolve({}) }) }),
+      };
       return {};
     });
     const result = await purchaseProduct("prod-1");
     expect((result as { success?: boolean }).success).toBe(true);
     expect((result as { product?: string }).product).toBe("Headset");
+    expect((result as { cashback?: number }).cashback).toBeDefined();
   });
 });

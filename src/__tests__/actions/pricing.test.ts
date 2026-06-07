@@ -116,21 +116,17 @@ describe("calculatePrice", () => {
   it("calculates discounted price correctly", async () => {
     mockFrom.mockImplementation((table: string) => {
       if (table === "dynamic_pricing_rules") {
+        const mockChain = {
+          or: () => mockChain,
+          lte: () => mockChain,
+          gt: () => mockChain,
+          order: () => mockChain,
+          limit: () => mockChain,
+          single: () => Promise.resolve({ data: { name: "Manhã OFF" } }),
+        };
         return {
           select: () => ({
-            eq: () => ({
-              or: () => ({
-                lte: () => ({
-                  gt: () => ({
-                    order: () => ({
-                      limit: () => ({
-                        single: () => Promise.resolve({ data: { name: "Manhã OFF" } }),
-                      }),
-                    }),
-                  }),
-                }),
-              }),
-            }),
+            eq: () => mockChain,
           }),
         };
       }
@@ -144,23 +140,24 @@ describe("calculatePrice", () => {
   });
 
   it("returns null label when no discount", async () => {
-    mockFrom.mockImplementation(() => ({
-      select: () => ({
-        eq: () => ({
-          or: () => ({
-            lte: () => ({
-              gt: () => ({
-                order: () => ({
-                  limit: () => ({
-                    single: () => Promise.resolve({ data: null }),
-                  }),
-                }),
-              }),
-            }),
+    mockFrom.mockImplementation((table: string) => {
+      if (table === "dynamic_pricing_rules") {
+        const mockChain = {
+          or: () => mockChain,
+          lte: () => mockChain,
+          gt: () => mockChain,
+          order: () => mockChain,
+          limit: () => mockChain,
+          single: () => Promise.resolve({ data: null }),
+        };
+        return {
+          select: () => ({
+            eq: () => mockChain,
           }),
-        }),
-      }),
-    }));
+        };
+      }
+      return {};
+    });
 
     const result = await calculatePrice(1000);
     expect(result.label).toBeNull();

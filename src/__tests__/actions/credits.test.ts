@@ -57,7 +57,7 @@ describe("getCreditsBalance", () => {
         return {
           select: () => ({
             eq: () => ({
-              single: () => Promise.resolve({ data: { credits_minutes: 1110 } }),
+              single: () => Promise.resolve({ data: { credits_minutes: 1090 } }), // igual ao total dos balances
             }),
           }),
         };
@@ -151,7 +151,7 @@ describe("transferCredits", () => {
               }),
             }),
           }),
-          update: jest.fn().mockResolvedValue({}),
+          update: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({}) }),
         };
       }
       if (table === "transactions") {
@@ -235,8 +235,8 @@ describe("consumeCredits", () => {
               }),
             }),
           }),
-          delete: jest.fn().mockResolvedValue({}),
-          update: jest.fn().mockResolvedValue({}),
+          delete: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({}) }),
+          update: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({}) }),
         };
       }
       if (table === "transactions") {
@@ -264,6 +264,8 @@ describe("consumeCredits", () => {
               }),
             }),
           }),
+          delete: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({}) }),
+          update: jest.fn().mockReturnValue({ eq: jest.fn().mockResolvedValue({}) }),
         };
       }
       if (table === "profiles") {
