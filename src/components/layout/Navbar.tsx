@@ -32,13 +32,13 @@ export function Navbar({ profile }: NavbarProps) {
         <Link href="/dashboard" className="flex items-center gap-2">
           <Image
             src="/images/logo-dark-bg.jpg"
-            alt="Arena Wolf"
+            alt="Wolf Arena"
             width={36}
             height={36}
             className="rounded-lg"
           />
           <span className="font-[family-name:var(--font-orbitron)] text-sm font-bold text-wolf-white hidden sm:block tracking-wider">
-            Arena Wolf
+            Wolf Arena
           </span>
         </Link>
 

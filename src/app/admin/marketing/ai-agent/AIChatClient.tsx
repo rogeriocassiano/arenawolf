@@ -11,7 +11,7 @@ interface Message {
 }
 
 const SUGGESTIONS = [
-  "Crie uma copy para Instagram sobre o Corujão da Arena Wolf",
+  "Crie uma copy para Instagram sobre o Corujão da Wolf Arena",
   "Sugira uma campanha para atrair jogadores de CS2 em BH",
   "Crie um calendário de posts para a próxima semana",
   "Quais promoções funcionam melhor para lan houses?",
@@ -22,7 +22,7 @@ export function AIChatClient({ hasApiKey }: { hasApiKey: boolean }) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Olá! Sou o Agente de Marketing da Arena Wolf 🐺\n\nPosso ajudar com:\n• Copies e textos para redes sociais\n• Estratégias de campanhas\n• Planejamento de conteúdo\n• Ideias de promoções\n• Análise de público-alvo\n\nO que vamos criar hoje?",
+      content: "Olá! Sou o Agente de Marketing da Wolf Arena 🐺\n\nPosso ajudar com:\n• Copies e textos para redes sociais\n• Estratégias de campanhas\n• Planejamento de conteúdo\n• Ideias de promoções\n• Análise de público-alvo\n\nO que vamos criar hoje?",
     },
   ]);
   const [input, setInput] = useState("");

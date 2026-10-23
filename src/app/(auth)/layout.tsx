@@ -23,7 +23,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
         <Link href="/" className="flex flex-col items-center gap-2 group">
           <Image
             src="/images/logo-dark-bg.jpg"
-            alt="Arena Wolf"
+            alt="Wolf Arena"
             width={120}
             height={120}
             className="rounded-2xl group-hover:scale-105 transition-transform duration-300"
@@ -34,7 +34,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           {children}
         </div>
         <p className="text-xs text-wolf-muted text-center">
-          Arena Wolf © {new Date().getFullYear()} · Av. Ivaí, 1178 · Dom Bosco · BH/MG
+          Wolf Arena © {new Date().getFullYear()} · Av. Ivaí, 1178 · Dom Bosco · BH/MG
         </p>
       </div>
     </div>

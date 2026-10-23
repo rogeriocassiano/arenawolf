@@ -57,7 +57,7 @@ export function TicketChat({ ticketId, messages, currentUserId, ticketStatus }: 
               )}>
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs text-wolf-muted font-[family-name:var(--font-rajdhani)] font-semibold">
-                    {isStaff ? "Arena Wolf Support" : (msg.author as { nickname?: string })?.nickname ?? "Você"}
+                    {isStaff ? "Wolf Arena Support" : (msg.author as { nickname?: string })?.nickname ?? "Você"}
                   </span>
                   <span className="text-[10px] text-wolf-muted/50">{formatDateTime(msg.created_at)}</span>
                 </div>

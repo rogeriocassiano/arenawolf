@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Arena Wolf — Plano de Negócio</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0D1117;
+    --surface: #161B22;
+    --surface-2: #1C2333;
+    --blue: #1A6FE8;
+    --blue-light: #4DA6FF;
+    --blue-deep: #0A3A8A;
+    --red: #E83030;
+    --chrome: #8AB4D4;
+    --white: #E8F4FF;
+    --muted: #8896AA;
+    --amber: #F0A500;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+  }
+  .page {
+    width: 210mm;
+    min-height: 296mm;
+    padding: 18mm 16mm 20mm;
+    page-break-after: always;
+    position: relative;
+    background:
+      linear-gradient(rgba(77,166,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(77,166,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-color: var(--bg);
+  }
+  .page:last-child { page-break-after: auto; }
+
+  /* ---------- COVER ---------- */
+  .cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .cover .logo {
+    width: 120mm;
+    max-width: 420px;
+    border-radius: 12px;
+    box-shadow: 0 0 60px rgba(26,111,232,0.35);
+    margin-bottom: 14mm;
+  }
+  .cover h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 34pt;
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: var(--white);
+    text-shadow: 0 0 30px rgba(77,166,255,0.5);
+  }
+  .cover h1 span { color: var(--blue-light); }
+  .cover .subtitle {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15pt;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--chrome);
+    margin-top: 5mm;
+  }
+  .cover .rule {
+    width: 60mm; height: 2px; margin: 8mm auto;
+    background: linear-gradient(90deg, transparent, var(--blue-light), transparent);
+  }
+  .cover .meta {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 10.5pt;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .cover .meta strong { color: var(--amber); font-weight: 600; }
+
+  /* ---------- CONTENT ---------- */
+  h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 15pt;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue-light);
+    margin: 8mm 0 3.5mm;
+    padding-bottom: 2mm;
+    border-bottom: 1px solid rgba(77,166,255,0.25);
+  }
+  h2 .num { color: var(--red); margin-right: 3mm; }
+  h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12pt;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--chrome);
+    margin: 5mm 0 2mm;
+  }
+  p { margin-bottom: 3mm; color: var(--white); }
+  p.muted { color: var(--muted); }
+  ul { margin: 0 0 3mm 5mm; }
+  li { margin-bottom: 1.5mm; }
+  li::marker { color: var(--blue-light); }
+  strong { color: var(--blue-light); font-weight: 600; }
+  .accent { color: var(--amber); font-weight: 600; }
+  .red { color: var(--red); font-weight: 600; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 3mm 0 5mm;
+    font-size: 9.5pt;
+  }
+  th {
+    font-family: 'Rajdhani', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 9pt;
+    text-align: left;
+    color: var(--blue-light);
+    background: var(--surface-2);
+    padding: 2.5mm 3mm;
+    border-bottom: 2px solid var(--blue);
+  }
+  td {
+    padding: 2.5mm 3mm;
+    border-bottom: 1px solid rgba(77,166,255,0.12);
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: rgba(28,35,51,0.45); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(77,166,255,0.2);
+    border-left: 3px solid var(--blue);
+    border-radius: 6px;
+    padding: 4mm 5mm;
+    margin: 3mm 0;
+  }
+  .card.amber { border-left-color: var(--amber); }
+  .card.red { border-left-color: var(--red); }
+  .card .card-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--blue-light);
+    font-size: 10.5pt;
+    margin-bottom: 1.5mm;
+  }
+  .card.amber .card-title { color: var(--amber); }
+  .card.red .card-title { color: var(--red); }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+
+  .flow { display: flex; flex-direction: column; gap: 2.5mm; margin: 3mm 0 5mm; }
+  .flow .step {
+    display: flex; align-items: center; gap: 4mm;
+    background: var(--surface-2);
+    border: 1px solid rgba(77,166,255,0.2);
+    border-radius: 6px;
+    padding: 3mm 4mm;
+  }
+  .flow .n {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    color: var(--blue-light);
+    font-size: 13pt;
+    min-width: 8mm;
+  }
+  .flow .arrow { text-align: center; color: var(--blue); font-size: 12pt; line-height: 1; }
+
+  .footer {
+    position: absolute;
+    bottom: 8mm; left: 16mm; right: 16mm;
+    display: flex; justify-content: space-between;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 8.5pt;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid rgba(77,166,255,0.15);
+    padding-top: 2.5mm;
+  }
+  .checklist { list-style: none; margin-left: 0; }
+  .checklist li { padding-left: 7mm; position: relative; margin-bottom: 2.5mm; }
+  .checklist li::before {
+    content: "";
+    position: absolute; left: 0; top: 1mm;
+    width: 3.5mm; height: 3.5mm;
+    border: 1.5px solid var(--blue-light);
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== CAPA ==================== -->
+<div class="page cover">
+  <img class="logo" src="../public/images/logo-dark-bg.jpg" alt="Arena Wolf">
+  <h1>ARENA <span>WOLF</span></h1>
+  <div class="subtitle">Plano de Negócio — Estrutura da Holding</div>
+  <div class="rule"></div>
+  <div class="meta">
+    Holding de Tecnologia · Mídia · Vendas<br><br>
+    <strong>Documento Interno — Confidencial</strong><br>
+    Outubro 2026 · v1.0
+  </div>
+</div>
+
+<!-- ==================== VISÃO + ESTRUTURA ==================== -->
+<div class="page">
+  <h2><span class="num">01</span>O QUE É A ARENA WOLF</h2>
+  <p>Holding que transforma capacidades próprias — tecnologia, audiovisual, engenharia e operações físicas — em <strong>serviços B2B de alto valor</strong>. As empresas do grupo funcionam como vitrine, laboratório e geradoras de caixa: todo cliente da Arena vê o resultado aplicado nas próprias subsidiárias.</p>
+  <p>O plano é usar a <strong>estrutura física da Arena como sede (HQ) de todas as empresas do grupo</strong>: arena com 10 estações, estúdio de gravação, podcast e equipamento audiovisual concentrados num único teto. Em cima dessa base, o grupo se estrutura como <span class="accent">uma startup de tecnologia</span> com pegada gamer — audiovisual, marketing, vendas e publicidade — em que a holding vende o conjunto e cada unidade alimenta a outra.</p>
+
+  <h3>O motor do grupo (flywheel)</h3>
+  <div class="flow">
+    <div class="step"><span class="n">1</span><div><strong>Tech + Engenharia</strong> vendem projetos high-ticket → financiam o grupo</div></div>
+    <div class="step"><span class="n">2</span><div><strong>Audiovisual + Wolf TV</strong> produzem conteúdo → geram audiência e leads</div></div>
+    <div class="step"><span class="n">3</span><div><strong>Subsidiárias</strong> usam os serviços da Arena → viram cases e prova social</div></div>
+    <div class="step"><span class="n">4</span><div><strong>Academia de Vendas</strong> treina o comercial interno e vende para fora</div></div>
+  </div>
+
+  <h2><span class="num">02</span>ESTRUTURA DO GRUPO</h2>
+  <table>
+    <tr><th>Unidade</th><th>O que faz</th><th>Responsável</th></tr>
+    <tr><td><strong>Wolf Tech</strong></td><td>IA, automação, fine-tuning, CRM de vendas</td><td>Rogério</td></tr>
+    <tr><td><strong>Wolf Academy</strong></td><td>Academia e treinamento de vendas</td><td>Rogério + comercial</td></tr>
+    <tr><td><strong>Wolf TV</strong></td><td>Canal de conteúdo + plataforma</td><td>Felipe + Marco Túlio</td></tr>
+    <tr><td><strong>Wolf Audiovisual</strong></td><td>Estúdio, podcast, produção</td><td>Marco Túlio</td></tr>
+    <tr><td><strong>Wolf Engineering</strong></td><td>Projetos, AutoCAD, máquinas</td><td>Luan</td></tr>
+    <tr><td><strong>Arena Games</strong></td><td>Arena com 10 estações</td><td>Cleriston</td></tr>
+    <tr><td><strong>Açaí</strong></td><td>Varejo alimentício</td><td>Cleriston</td></tr>
+  </table>
+
+  <div class="footer"><span>Arena Wolf — Plano de Negócio</span><span>Uso interno</span></div>
+</div>
+
+<!-- ==================== PAPÉIS + RECEITA ==================== -->
+<div class="page">
+  <h2><span class="num">03</span>PAPÉIS E RESPONSABILIDADES</h2>
+  <table>
+    <tr><th>Sócio</th><th>Papel na holding</th></tr>
+    <tr><td><strong>Rogério</strong></td><td>CTO — head de receita high-ticket (IA, automação, CRM) e tecnologia do grupo</td></tr>
+    <tr><td><strong>Cleriston</strong></td><td>COO — administrativo-financeiro (com Luan) + operações físicas</td></tr>
+    <tr><td><strong>Luan</strong></td><td>Diretor de engenharia + diretor financeiro (com Cleriston)</td></tr>
+    <tr><td><strong>Marco Túlio</strong></td><td>Diretor de audiovisual e produção</td></tr>
+    <tr><td><strong>Felipe</strong></td><td>Head de conteúdo — Wolf TV</td></tr>
+  </table>
+
+  <h2><span class="num">04</span>MODELO DE RECEITA</h2>
+  <div class="card">
+    <div class="card-title">High-ticket (prioridade ano 1)</div>
+    Projetos de IA e automação sob demanda, pacotes de marketing + audiovisual usando o estúdio próprio, e CRM + academia de vendas.
+  </div>
+  <div class="card">
+    <div class="card-title">Receita recorrente</div>
+    Contratos de gestão de marketing, assinaturas do CRM/academia e manutenção das automações entregues.
+  </div>
+  <div class="card">
+    <div class="card-title">Subsidiárias</div>
+    Receita própria de cada operação (açaí, arena, audiovisual, engenharia) + contribuição para o caixa central.
+  </div>
+
+  <h2><span class="num">05</span>REGRA FINANCEIRA — ANO 1</h2>
+  <ul>
+    <li><strong>Projetos do Rogério:</strong> 80% para o sócio / <span class="accent">20% para a Arena</span>, até a holding se sustentar sozinha (meta: 12 meses).</li>
+    <li><strong>Subsidiárias:</strong> taxa de gestão/marca de <span class="accent">5–10% da receita</span> para o caixa central (percentual a definir na negociação de equity).</li>
+    <li><strong>Caixa central</strong> financia: estrutura comercial e administrativa, marketing do grupo e produção da Wolf TV.</li>
+  </ul>
+
+  <div class="footer"><span>Arena Wolf — Plano de Negócio</span><span>Uso interno</span></div>
+</div>
+
+<!-- ==================== GOVERNANÇA + ROADMAP ==================== -->
+<div class="page">
+  <h2><span class="num">06</span>GOVERNANÇA</h2>
+  <p class="muted">A divisão de equity será negociada entre os sócios. O que <strong>não</strong> pode ficar em aberto:</p>
+  <ul>
+    <li><strong>Prazo para definir equity</strong> — marcar data em assembleia; equity aberto sem prazo é o que quebra holding.</li>
+    <li><strong>Autonomia por área</strong> — tech decide com Rogério, conteúdo com Felipe/Marco Túlio, financeiro com Luan/Cleriston.</li>
+    <li><strong>Prestação de contas</strong> — as 20% dos projetos e a taxa das subsidiárias entram no caixa central com relatório mensal.</li>
+  </ul>
+
+  <h2><span class="num">07</span>ROADMAP — 90 DIAS</h2>
+  <p class="muted">Execução concentrada: ao fim de 3 meses o grupo deve estar operando como uma startup sob a holding.</p>
+  <table>
+    <tr><th>Fase</th><th>Prazo</th><th>Entregas</th></tr>
+    <tr><td><strong>Fundação</strong></td><td>Mês 1</td><td>Arena como sede (HQ) de todas as empresas, CRM próprio rodando nas subsidiárias (dogfooding), identidade do grupo padronizada</td></tr>
+    <tr><td><strong>Receita</strong></td><td>Mês 2</td><td>Primeiros contratos B2B de IA/automação, lançamento da Wolf TV, cases documentados nas subsidiárias, pipeline comercial ativo</td></tr>
+    <tr><td><strong>Startup</strong></td><td>Mês 3</td><td>Wolf Academy em piloto, comercial estruturado (SDR/closer), grupo operando sob a holding com caixa central e relatório mensal</td></tr>
+  </table>
+
+  <h2><span class="num">08</span>METAS — CONGLOMERADO DE MÍDIA WOLF TV</h2>
+  <h3>Audiovisual</h3>
+  <ul>
+    <li>Estúdio como <strong>produtora oficial do grupo</strong> e fornecedora de conteúdo para clientes B2B.</li>
+    <li><strong>Wolf TV no ar</strong>: podcast semanal, cortes para redes e cobertura das empresas do grupo.</li>
+    <li>Meta de produção: <strong>4 episódios/mês</strong> + pacote de cortes por episódio.</li>
+  </ul>
+  <h3>Patrocínio</h3>
+  <ul>
+    <li>Montar o <strong>mídia kit do conglomerado</strong>: Wolf TV, podcast, arena, eventos e redes das subsidiárias numa cota única.</li>
+    <li>Formatos de cota: naming da arena, inserções no podcast, presença em transmissões/eventos e conteúdo patrocinado.</li>
+    <li>Meta: <span class="accent">3 cotas fechadas</span> com marcas locais/regionais (games, tech, alimentação) nos primeiros 90 dias.</li>
+  </ul>
+
+  <div class="card red" style="margin-top:6mm">
+    <div class="card-title">Ponto de atenção</div>
+    A força do grupo é cada sócio tocar sua área e a holding vender o conjunto. O risco é o mesmo de toda holding: <strong>equity indefinido e dinheiro sem regra clara</strong>. Resolver os dois nos primeiros 90 dias.
+  </div>
+
+  <div class="footer"><span>Arena Wolf — Plano de Negócio</span><span>Uso interno</span></div>
+</div>
+
+</body>
+</html>

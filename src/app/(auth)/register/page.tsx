@@ -18,7 +18,7 @@ export default function RegisterPage() {
         <h1 className="font-[family-name:var(--font-orbitron)] text-2xl font-bold text-wolf-white tracking-wide">
           Criar Conta
         </h1>
-        <p className="text-sm text-wolf-muted">Junte-se à Arena Wolf</p>
+        <p className="text-sm text-wolf-muted">Junte-se à Wolf Arena</p>
       </div>
 
       {state?.error && (

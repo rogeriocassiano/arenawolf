@@ -1,8 +1,13 @@
 // Script para criar usuários de teste
 import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = "https://uxxuspwortgwqaftcfrw.supabase.co";
-const SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4eHVzcHdvcnRnd3FhZnRjZnJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDMxNTIxMSwiZXhwIjoyMDk1ODkxMjExfQ.t13Xs7ubgetglNlzLF3dwmKr2-AL-xXSy3QPzzHuHQs";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+  console.error("Defina NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY no ambiente");
+  process.exit(1);
+}
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },

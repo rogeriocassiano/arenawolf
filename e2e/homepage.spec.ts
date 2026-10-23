@@ -1,10 +1,10 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Homepage", () => {
-  test("loads and shows Arena Wolf branding", async ({ page }) => {
+  test("loads and shows Wolf Arena branding", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle(/Arena Wolf/i);
-    await expect(page.getByText("Arena Wolf").first()).toBeVisible();
+    await expect(page).toHaveTitle(/Wolf Arena/i);
+    await expect(page.getByText("Wolf Arena").first()).toBeVisible();
   });
 
   test("shows hero headline", async ({ page }) => {

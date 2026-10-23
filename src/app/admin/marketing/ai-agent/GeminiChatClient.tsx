@@ -14,7 +14,7 @@ export function GeminiChatClient() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Olá! Sou o Agente de Marketing da Arena Wolf powered by **Gemini 2.0 Flash**. Posso ajudar com:\n\n• Estratégias de tráfego pago (Meta Ads, Google Ads)\n• Criação de copies e conteúdo para redes sociais\n• Pesquisa de mercado com Google Search Grounding\n• Planejamento de campanhas e calendário editorial\n\nO que vamos criar hoje?",
+      content: "Olá! Sou o Agente de Marketing da Wolf Arena powered by **Gemini 2.0 Flash**. Posso ajudar com:\n\n• Estratégias de tráfego pago (Meta Ads, Google Ads)\n• Criação de copies e conteúdo para redes sociais\n• Pesquisa de mercado com Google Search Grounding\n• Planejamento de campanhas e calendário editorial\n\nO que vamos criar hoje?",
     },
   ]);
   const [input, setInput] = useState("");

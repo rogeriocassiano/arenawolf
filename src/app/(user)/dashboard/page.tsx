@@ -68,7 +68,7 @@ export default async function DashboardPage() {
           Olá, {profile?.nickname ?? "Gamer"} 👋
         </h1>
         <p className="text-wolf-muted text-sm mt-1">
-          Bem-vindo de volta à Arena Wolf
+          Bem-vindo de volta à Wolf Arena
         </p>
       </div>
 

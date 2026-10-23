@@ -3,39 +3,15 @@
  * Testa que bugs corrigidos anteriormente não voltem
  */
 
-import { test, expect, Page } from "@playwright/test";
-
-const TEST_ADMIN = {
-  email: process.env.TEST_ADMIN_EMAIL ?? "luan@arenawolf.com",
-  password: process.env.TEST_ADMIN_PASSWORD ?? "12345678",
-};
-
-const TEST_USER = {
-  email: process.env.TEST_USER_EMAIL ?? "user@user.com",
-  password: process.env.TEST_USER_PASSWORD ?? "12345678",
-};
-
-async function loginAsUser(page: Page) {
-  await page.goto("/login");
-  await page.fill('input[type="email"]', TEST_USER.email);
-  await page.fill('input[type="password"]', TEST_USER.password);
-  await page.click('button[type="submit"]');
-  await page.waitForURL("**/dashboard", { timeout: 15000 });
-}
-
-async function loginAsAdmin(page: Page) {
-  await page.goto("/login");
-  await page.fill('input[type="email"]', TEST_ADMIN.email);
-  await page.fill('input[type="password"]', TEST_ADMIN.password);
-  await page.click('button[type="submit"]');
-  await page.waitForURL(/dashboard|admin/, { timeout: 15000 });
-}
+import { test, expect } from "@playwright/test";
+import { ADMIN_FILE, USER_FILE } from "./auth-files";
 
 test.describe("Regressão — Bugs corrigidos", () => {
+  test.use({ storageState: USER_FILE });
   
   // Bug 1: Inconsistência nos pacotes de crédito (minutes vs total_minutes)
   test("pacote de crédito mostra minutos corretos na loja", async ({ page }) => {
-    await loginAsUser(page);
+
     await page.goto("/store");
     await page.waitForLoadState("networkidle");
     
@@ -49,7 +25,7 @@ test.describe("Regressão — Bugs corrigidos", () => {
 
   // Bug 2: Rollback cancelava reserva errada (usava id errado)
   test("criar e cancelar reserva não afeta outras reservas", async ({ page }) => {
-    await loginAsUser(page);
+
     await page.goto("/reservations");
     await page.waitForLoadState("domcontentloaded");
     
@@ -71,7 +47,7 @@ test.describe("Regressão — Bugs corrigidos", () => {
 
   // Bug 3: Clock skew no ends_at (recalculava no servidor em vez de buscar do banco)
   test("sessão ativa mostra countdown consistente", async ({ page }) => {
-    await loginAsUser(page);
+
     
     // Se usuário tem sessão ativa, verifica countdown
     const sessionIndicator = page.locator("text=/minutos restantes|tempo restante/i");
@@ -93,7 +69,7 @@ test.describe("Regressão — Bugs corrigidos", () => {
 
   // Bug 4: Mensagem confusa sobre pagamento no balcão
   test("compra de crédito mostra mensagem clara de pagamento no balcão", async ({ page }) => {
-    await loginAsUser(page);
+
     await page.goto("/store");
     await page.waitForLoadState("networkidle");
     
@@ -107,8 +83,9 @@ test.describe("Regressão — Bugs corrigidos", () => {
   });
 
   // Bug 5 & 6: handleAddTime e confirmEndSession sem verificação de erro
-  test("admin: adicionar tempo mostra erro se API falhar", async ({ page }) => {
-    await loginAsAdmin(page);
+  test.describe("admin", () => {
+    test.use({ storageState: ADMIN_FILE });
+    test("admin: adicionar tempo mostra erro se API falhar", async ({ page }) => {
     await page.goto("/admin/operator");
     await page.waitForLoadState("domcontentloaded");
     
@@ -130,6 +107,7 @@ test.describe("Regressão — Bugs corrigidos", () => {
     } else {
       test.skip(true, "Nenhuma máquina ocupada para testar");
     }
+    });
   });
 
   // Bug 7: @import CSS fora de ordem no overlay

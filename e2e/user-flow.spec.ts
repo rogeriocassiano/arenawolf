@@ -3,24 +3,14 @@
  * Dashboard → Session → Store → Reservations → Support
  */
 
-import { test, expect, Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
+import { USER_FILE } from "./auth-files";
 
-const TEST_USER = {
-  email: process.env.TEST_USER_EMAIL ?? "user@user.com",
-  password: process.env.TEST_USER_PASSWORD ?? "12345678",
-};
-
-async function loginAsUser(page: Page) {
-  await page.goto("/login");
-  await page.fill('input[type="email"]', TEST_USER.email);
-  await page.fill('input[type="password"]', TEST_USER.password);
-  await page.click('button[type="submit"]');
-  await page.waitForURL("**/dashboard", { timeout: 15000 });
-}
+test.use({ storageState: USER_FILE });
 
 test.describe("Fluxo Usuário Completo", () => {
   test.beforeEach(async ({ page }) => {
-    await loginAsUser(page);
+    await page.goto("/dashboard");
   });
 
   test("dashboard carrega com sidebar e KPIs", async ({ page }) => {

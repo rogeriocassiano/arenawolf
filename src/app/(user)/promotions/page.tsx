@@ -35,7 +35,7 @@ export default async function PromotionsPage() {
         <h1 className="font-[family-name:var(--font-orbitron)] text-2xl font-bold text-wolf-white tracking-wide">
           Promoções
         </h1>
-        <p className="text-wolf-muted text-sm mt-1">Ofertas e descontos especiais da Arena Wolf</p>
+        <p className="text-wolf-muted text-sm mt-1">Ofertas e descontos especiais da Wolf Arena</p>
       </div>
 
       {promoList.length === 0 ? (
@@ -109,7 +109,7 @@ export default async function PromotionsPage() {
 
                 <div className="pt-3 border-t border-wolf-blue/10">
                   <p className="text-xs text-wolf-muted/60 text-center">
-                    Apresente esta promoção no balcão da Arena Wolf para utilizar.
+                    Apresente esta promoção no balcão da Wolf Arena para utilizar.
                   </p>
                 </div>
               </div>

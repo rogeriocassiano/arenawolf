@@ -27,14 +27,14 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Arena Wolf — Lan House Premium BH",
+  title: "Wolf Arena — Lan House Premium BH",
   description:
-    "Arena Wolf: a melhor lan house de Belo Horizonte. Reserve seu PC Gamer ou PS5 online, veja disponibilidade em tempo real e aproveite promoções exclusivas.",
+    "Wolf Arena: a melhor lan house de Belo Horizonte. Reserve seu PC Gamer ou PS5 online, veja disponibilidade em tempo real e aproveite promoções exclusivas.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Arena Wolf",
+    title: "Wolf Arena",
   },
 };
 

@@ -3,24 +3,14 @@
  * Operator, Machines, Users, Apps, Financial, Support, Settings
  */
 
-import { test, expect, Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
+import { ADMIN_FILE } from "./auth-files";
 
-const TEST_ADMIN = {
-  email: process.env.TEST_ADMIN_EMAIL ?? "luan@arenawolf.com",
-  password: process.env.TEST_ADMIN_PASSWORD ?? "12345678",
-};
-
-async function loginAsAdmin(page: Page) {
-  await page.goto("/login");
-  await page.fill('input[type="email"]', TEST_ADMIN.email);
-  await page.fill('input[type="password"]', TEST_ADMIN.password);
-  await page.click('button[type="submit"]');
-  await page.waitForURL(/dashboard|admin/, { timeout: 15000 });
-}
+test.use({ storageState: ADMIN_FILE });
 
 test.describe("Painel Admin — Painel Operador", () => {
   test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
+
     await page.goto("/admin/operator");
   });
 
@@ -57,7 +47,7 @@ test.describe("Painel Admin — Painel Operador", () => {
 
 test.describe("Painel Admin — Gerenciamento de Máquinas", () => {
   test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
+
     await page.goto("/admin/machines");
   });
 
@@ -95,7 +85,7 @@ test.describe("Painel Admin — Gerenciamento de Máquinas", () => {
 
 test.describe("Painel Admin — Usuários", () => {
   test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
+
     await page.goto("/admin/users");
   });
 
@@ -131,7 +121,7 @@ test.describe("Painel Admin — Usuários", () => {
 
 test.describe("Painel Admin — Apps", () => {
   test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
+
     await page.goto("/admin/apps");
   });
 
@@ -154,7 +144,7 @@ test.describe("Painel Admin — Apps", () => {
 
 test.describe("Painel Admin — Financeiro", () => {
   test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
+
     await page.goto("/admin/financial");
   });
 
@@ -179,7 +169,7 @@ test.describe("Painel Admin — Financeiro", () => {
 
 test.describe("Painel Admin — Suporte", () => {
   test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
+
     await page.goto("/admin/support");
   });
 
@@ -204,7 +194,7 @@ test.describe("Painel Admin — Suporte", () => {
 
 test.describe("Painel Admin — Configurações", () => {
   test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
+
     await page.goto("/admin/settings");
   });
 

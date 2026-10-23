@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/actions/auth";
+import { WolfCrmLink } from "@/components/layout/WolfCrmLink";
 import Image from "next/image";
 
 const navGroups = [
@@ -71,9 +72,9 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
   return (
     <nav className="flex flex-col h-full">
       <div className="flex items-center gap-2 px-4 h-16 border-b border-wolf-blue/15 shrink-0">
-        <Image src="/images/logo-dark-bg.jpg" alt="Arena Wolf" width={28} height={28} className="rounded-md" />
+        <Image src="/images/logo-dark-bg.jpg" alt="Wolf Arena" width={28} height={28} className="rounded-md" />
         <div>
-          <p className="font-[family-name:var(--font-orbitron)] text-xs font-bold text-wolf-white tracking-wide">Arena Wolf</p>
+          <p className="font-[family-name:var(--font-orbitron)] text-xs font-bold text-wolf-white tracking-wide">Wolf Arena</p>
           <p className="text-[10px] text-wolf-blue-light font-[family-name:var(--font-rajdhani)] tracking-widest uppercase">Admin</p>
         </div>
       </div>
@@ -108,6 +109,13 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
             })}
           </div>
         ))}
+      </div>
+
+      <div className="mb-4">
+        <p className="px-4 mb-1 text-[10px] font-[family-name:var(--font-rajdhani)] font-bold text-wolf-muted/60 tracking-widest uppercase">
+          Grupo Wolf
+        </p>
+        <WolfCrmLink />
       </div>
 
       <div className="px-2 pb-4 border-t border-wolf-blue/10 pt-3 shrink-0">

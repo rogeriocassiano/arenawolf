@@ -47,3 +47,6 @@ packages/agent/node_modules/
 
 # Local Netlify folder
 .netlify
+
+# playwright auth state
+e2e/.auth/

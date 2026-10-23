@@ -68,7 +68,7 @@ export function RankingClient({ rankings, teams, currentUserId }: Props) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-[family-name:var(--font-orbitron)] text-2xl font-bold text-wolf-white tracking-wide">
-            Ranking Arena Wolf
+            Ranking Wolf Arena
           </h1>
           <p className="text-wolf-muted text-sm mt-1">Temporada {new Date().getFullYear()} · Partidas somente na Arena</p>
         </div>

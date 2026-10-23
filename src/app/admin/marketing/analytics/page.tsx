@@ -30,7 +30,7 @@ export default async function MarketingAnalyticsPage() {
     <div className="flex flex-col gap-8">
       <div>
         <h1 className="font-[family-name:var(--font-orbitron)] text-2xl font-bold text-wolf-white tracking-wide">Analytics de Marketing</h1>
-        <p className="text-wolf-muted text-sm mt-1">Visão geral das ações de marketing da Arena Wolf</p>
+        <p className="text-wolf-muted text-sm mt-1">Visão geral das ações de marketing da Wolf Arena</p>
       </div>
 
       {/* KPIs principais */}

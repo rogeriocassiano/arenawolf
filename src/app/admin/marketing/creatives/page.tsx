@@ -18,10 +18,10 @@ const typeConfig = {
 const AI_PROMPTS = [
   { label: "Post Instagram — Promoção", prompt: "Crie um copy criativo e envolvente para um post de Instagram anunciando: " },
   { label: "Story — Urgência", prompt: "Crie um texto curto e impactante para Stories do Instagram com senso de urgência sobre: " },
-  { label: "Legenda Reels", prompt: "Crie uma legenda engajante com emojis e hashtags para um Reels da Arena Wolf sobre: " },
+  { label: "Legenda Reels", prompt: "Crie uma legenda engajante com emojis e hashtags para um Reels da Wolf Arena sobre: " },
   { label: "Anúncio Facebook", prompt: "Crie o texto de um anúncio de Facebook Ads (headline + descrição + CTA) para: " },
   { label: "WhatsApp — Oferta", prompt: "Crie uma mensagem de WhatsApp direta e persuasiva para divulgar para clientes: " },
-  { label: "Email Marketing", prompt: "Crie o assunto e corpo de um email marketing para clientes da Arena Wolf sobre: " },
+  { label: "Email Marketing", prompt: "Crie o assunto e corpo de um email marketing para clientes da Wolf Arena sobre: " },
 ];
 
 export default function CreativesPage() {

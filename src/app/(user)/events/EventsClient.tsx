@@ -44,7 +44,7 @@ export function EventsClient({ events, tournaments, myTournamentIds }: Props) {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="font-[family-name:var(--font-orbitron)] text-2xl font-bold text-wolf-white tracking-wide">Eventos</h1>
-        <p className="text-wolf-muted text-sm mt-1">Corujões, campeonatos e eventos da Arena Wolf</p>
+        <p className="text-wolf-muted text-sm mt-1">Corujões, campeonatos e eventos da Wolf Arena</p>
       </div>
 
       {/* Tabs */}

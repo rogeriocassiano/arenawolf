@@ -3,37 +3,13 @@
  * Gift Cards, Assinaturas, Indicação, Cashback, Preço Dinâmico
  */
 
-import { test, expect, Page } from "@playwright/test";
-
-const TEST_USER = {
-  email: process.env.TEST_USER_EMAIL ?? "user@user.com",
-  password: process.env.TEST_USER_PASSWORD ?? "12345678",
-};
-
-const TEST_ADMIN = {
-  email: process.env.TEST_ADMIN_EMAIL ?? "luan@arenawolf.com",
-  password: process.env.TEST_ADMIN_PASSWORD ?? "12345678",
-};
-
-async function loginAsUser(page: Page) {
-  await page.goto("/login");
-  await page.fill('input[type="email"]', TEST_USER.email);
-  await page.fill('input[type="password"]', TEST_USER.password);
-  await page.click('button[type="submit"]');
-  await page.waitForURL("**/dashboard", { timeout: 15000 });
-}
-
-async function loginAsAdmin(page: Page) {
-  await page.goto("/login");
-  await page.fill('input[type="email"]', TEST_ADMIN.email);
-  await page.fill('input[type="password"]', TEST_ADMIN.password);
-  await page.click('button[type="submit"]');
-  await page.waitForURL(/dashboard|admin/, { timeout: 15000 });
-}
+import { test, expect } from "@playwright/test";
+import { ADMIN_FILE, USER_FILE } from "./auth-files";
 
 test.describe("Gift Cards / Códigos Promocionais", () => {
+  test.use({ storageState: USER_FILE });
   test("usuário resgata código promocional válido", async ({ page }) => {
-    await loginAsUser(page);
+
     await page.goto("/profile");
     await page.waitForLoadState("domcontentloaded");
     
@@ -53,8 +29,9 @@ test.describe("Gift Cards / Códigos Promocionais", () => {
 });
 
 test.describe("Programa de Indicação", () => {
+  test.use({ storageState: USER_FILE });
   test("usuário acessa link de indicação", async ({ page }) => {
-    await loginAsUser(page);
+
     await page.goto("/profile");
     await page.waitForLoadState("domcontentloaded");
     
@@ -80,8 +57,9 @@ test.describe("Programa de Indicação", () => {
 });
 
 test.describe("Cashback na Loja", () => {
+  test.use({ storageState: USER_FILE });
   test("compra de produto mostra cashback ganho", async ({ page }) => {
-    await loginAsUser(page);
+
     await page.goto("/store");
     await page.waitForLoadState("networkidle");
     
@@ -100,8 +78,9 @@ test.describe("Cashback na Loja", () => {
 });
 
 test.describe("Preço Dinâmico", () => {
+  test.use({ storageState: USER_FILE });
   test("preço muda conforme horário", async ({ page }) => {
-    await loginAsUser(page);
+
     await page.goto("/session");
     await page.waitForLoadState("domcontentloaded");
     
@@ -115,8 +94,9 @@ test.describe("Preço Dinâmico", () => {
 });
 
 test.describe("Hold em Reservas", () => {
+  test.use({ storageState: USER_FILE });
   test("criar reserva consome créditos (hold)", async ({ page }) => {
-    await loginAsUser(page);
+
     await page.goto("/reservations");
     await page.waitForLoadState("domcontentloaded");
     
@@ -141,7 +121,7 @@ test.describe("Hold em Reservas", () => {
   });
 
   test("cancelar reserva devolve créditos", async ({ page }) => {
-    await loginAsUser(page);
+
     await page.goto("/reservations");
     await page.waitForLoadState("domcontentloaded");
     
@@ -160,8 +140,9 @@ test.describe("Hold em Reservas", () => {
 });
 
 test.describe("Dashboard de Créditos", () => {
+  test.use({ storageState: USER_FILE });
   test("visualizar saldo detalhado por tipo", async ({ page }) => {
-    await loginAsUser(page);
+
     await page.goto("/profile");
     await page.waitForLoadState("domcontentloaded");
     
@@ -177,7 +158,7 @@ test.describe("Dashboard de Créditos", () => {
   });
 
   test("histórico de transações", async ({ page }) => {
-    await loginAsUser(page);
+
     await page.goto("/profile");
     await page.waitForLoadState("domcontentloaded");
     
@@ -196,9 +177,7 @@ test.describe("Dashboard de Créditos", () => {
 });
 
 test.describe("Admin - Gerenciamento de Créditos", () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
-  });
+  test.use({ storageState: ADMIN_FILE });
 
   test("admin cria código promocional", async ({ page }) => {
     await page.goto("/admin/promocodes");

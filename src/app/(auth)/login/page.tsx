@@ -18,7 +18,7 @@ export default function LoginPage() {
         <h1 className="font-[family-name:var(--font-orbitron)] text-2xl font-bold text-wolf-white tracking-wide">
           Entrar
         </h1>
-        <p className="text-sm text-wolf-muted">Acesse sua conta na Arena Wolf</p>
+        <p className="text-sm text-wolf-muted">Acesse sua conta na Wolf Arena</p>
       </div>
 
       {state?.error && (

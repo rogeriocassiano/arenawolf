@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@/lib/supabase/server";
 
-const SYSTEM_PROMPT = `Você é o Agente de Marketing da Arena Wolf, uma lan house premium em Belo Horizonte (Av. Ivaí, 1178 · Dom Bosco).
+const SYSTEM_PROMPT = `Você é o Agente de Marketing da Wolf Arena, uma lan house premium em Belo Horizonte (Av. Ivaí, 1178 · Dom Bosco).
 
 SOBRE A ARENA WOLF:
 - 10 PCs Gamer (Wolf 01-10) com monitores 180Hz
