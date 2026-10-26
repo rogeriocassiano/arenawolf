@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Wolf Tech — Plano Comercial</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0D1117;
+    --surface: #161B22;
+    --surface-2: #1C2333;
+    --blue: #1A6FE8;
+    --blue-light: #4DA6FF;
+    --blue-deep: #0A3A8A;
+    --red: #E83030;
+    --chrome: #8AB4D4;
+    --white: #E8F4FF;
+    --muted: #8896AA;
+    --amber: #F0A500;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+  }
+  .page {
+    width: 210mm;
+    min-height: 296mm;
+    padding: 18mm 16mm 20mm;
+    page-break-after: always;
+    position: relative;
+    background:
+      linear-gradient(rgba(77,166,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(77,166,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-color: var(--bg);
+  }
+  .page:last-child { page-break-after: auto; }
+  .cover { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+  .cover .logo { width: 120mm; max-width: 420px; border-radius: 12px; box-shadow: 0 0 60px rgba(26,111,232,0.35); margin-bottom: 14mm; }
+  .cover h1 { font-family: 'Orbitron', sans-serif; font-size: 34pt; font-weight: 900; letter-spacing: 4px; color: var(--white); text-shadow: 0 0 30px rgba(77,166,255,0.5); }
+  .cover h1 span { color: var(--blue-light); }
+  .cover .subtitle { font-family: 'Rajdhani', sans-serif; font-size: 15pt; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--chrome); margin-top: 5mm; }
+  .cover .rule { width: 60mm; height: 2px; margin: 8mm auto; background: linear-gradient(90deg, transparent, var(--blue-light), transparent); }
+  .cover .meta { font-family: 'Rajdhani', sans-serif; font-size: 10.5pt; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+  .cover .meta strong { color: var(--amber); font-weight: 600; }
+  h2 { font-family: 'Orbitron', sans-serif; font-size: 15pt; font-weight: 700; letter-spacing: 1.5px; color: var(--blue-light); margin: 8mm 0 3.5mm; padding-bottom: 2mm; border-bottom: 1px solid rgba(77,166,255,0.25); }
+  h2 .num { color: var(--red); margin-right: 3mm; }
+  h3 { font-family: 'Rajdhani', sans-serif; font-size: 12pt; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--chrome); margin: 5mm 0 2mm; }
+  p { margin-bottom: 3mm; color: var(--white); }
+  p.muted { color: var(--muted); }
+  ul { margin: 0 0 3mm 5mm; }
+  li { margin-bottom: 1.5mm; }
+  li::marker { color: var(--blue-light); }
+  strong { color: var(--blue-light); font-weight: 600; }
+  .accent { color: var(--amber); font-weight: 600; }
+  .red { color: var(--red); font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; margin: 3mm 0 5mm; font-size: 9.5pt; }
+  th { font-family: 'Rajdhani', sans-serif; text-transform: uppercase; letter-spacing: 1px; font-size: 9pt; text-align: left; color: var(--blue-light); background: var(--surface-2); padding: 2.5mm 3mm; border-bottom: 2px solid var(--blue); }
+  td { padding: 2.5mm 3mm; border-bottom: 1px solid rgba(77,166,255,0.12); vertical-align: top; }
+  tr:nth-child(even) td { background: rgba(28,35,51,0.45); }
+  .card { background: var(--surface); border: 1px solid rgba(77,166,255,0.2); border-left: 3px solid var(--blue); border-radius: 6px; padding: 4mm 5mm; margin: 3mm 0; }
+  .card.amber { border-left-color: var(--amber); }
+  .card.red { border-left-color: var(--red); }
+  .card .card-title { font-family: 'Rajdhani', sans-serif; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--blue-light); font-size: 10.5pt; margin-bottom: 1.5mm; }
+  .card.amber .card-title { color: var(--amber); }
+  .card.red .card-title { color: var(--red); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .flow { display: flex; flex-direction: column; gap: 2.5mm; margin: 3mm 0 5mm; }
+  .flow .step { display: flex; align-items: center; gap: 4mm; background: var(--surface-2); border: 1px solid rgba(77,166,255,0.2); border-radius: 6px; padding: 3mm 4mm; }
+  .flow .n { font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--blue-light); font-size: 13pt; min-width: 8mm; }
+  .footer { position: absolute; bottom: 8mm; left: 16mm; right: 16mm; display: flex; justify-content: space-between; font-family: 'Rajdhani', sans-serif; font-size: 8.5pt; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); border-top: 1px solid rgba(77,166,255,0.15); padding-top: 2.5mm; }
+  .checklist { list-style: none; margin-left: 0; }
+  .checklist li { padding-left: 7mm; position: relative; margin-bottom: 2.5mm; }
+  .checklist li::before { content: ""; position: absolute; left: 0; top: 1mm; width: 3.5mm; height: 3.5mm; border: 1.5px solid var(--blue-light); border-radius: 2px; }
+  .big { font-family: 'Orbitron', sans-serif; font-size: 22pt; font-weight: 900; color: var(--blue-light); }
+  .kpi { text-align: center; background: var(--surface-2); border: 1px solid rgba(77,166,255,0.2); border-radius: 8px; padding: 5mm 3mm; }
+  .kpi .v { font-family: 'Orbitron', sans-serif; font-size: 18pt; font-weight: 700; color: var(--amber); }
+  .kpi .l { font-family: 'Rajdhani', sans-serif; font-size: 9pt; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-top: 1.5mm; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+</style>
+</head>
+<body>
+
+<!-- ==================== CAPA ==================== -->
+<div class="page cover">
+  <img class="logo" src="../public/images/logo-dark-bg.jpg" alt="Wolf Tech">
+  <h1>WOLF <span>TECH</span></h1>
+  <div class="subtitle">Plano Comercial — Estrutura de Vendas</div>
+  <div class="rule"></div>
+  <div class="meta">
+    CRM · IA · Automação · Mídia · Academy<br><br>
+    <strong>Documento Interno — Confidencial</strong><br>
+    Outubro 2026 · v1.0
+  </div>
+</div>
+
+<!-- ==================== O QUE VENDEMOS + PREÇO ==================== -->
+<div class="page">
+  <h2><span class="num">01</span>O QUE VENDEMOS</h2>
+  <p>A Wolf Tech vende <strong>resultado comercial para PMEs</strong>: mais lead respondido, mais cliente retido, mais venda fechada — entregue por software, automação e mídia. O produto central é o <strong>Wolf CRM</strong>: funil, cadências automáticas, WhatsApp integrado e IA de vendas, já rodando em produção em 3 empresas.</p>
+  <p class="muted">A âncora de valor: um sistema desse porte custou <span class="accent">R$ 100 mil para ser desenvolvido</span> (contrato real, cliente Grupo MF Paris — usa todo dia em produção). O ticket alvo da Wolf Tech é <span class="accent">≈ R$ 90 mil por venda</span> — implantação completa + automação + licenças do primeiro ano. A frase de venda: <em>"um sistema desses custou R$100 mil pra construir — você leva implantado, com a sua marca, por menos que isso."</em></p>
+
+  <h2><span class="num">02</span>MODELO DE PREÇO — 3 FAIXAS</h2>
+  <table>
+    <tr><th>Pacote</th><th>O que inclui</th><th>Preço</th></tr>
+    <tr>
+      <td><strong>Implantação</strong></td>
+      <td>CRM configurado, funil personalizado, importação da base de clientes, treinamento da equipe</td>
+      <td><strong>R$ 29,9–45 mil</strong> setup<br>+ R$ 297/usuário/mês (mín. 5)</td>
+    </tr>
+    <tr>
+      <td><strong>Automação — venda padrão</strong></td>
+      <td>Tudo do pacote Implantação + bot WhatsApp, cadências automáticas, assistente IA de vendas</td>
+      <td><strong>≈ R$ 90 mil</strong> ano 1<br>(setup + licenças)</td>
+    </tr>
+    <tr>
+      <td><strong>Enterprise</strong></td>
+      <td>Tudo + agente de IA customizado, integrações com sistemas do cliente, SLA dedicado</td>
+      <td><strong>R$ 90–150 mil+</strong><br>+ mensalidade sob medida</td>
+    </tr>
+  </table>
+
+  <h3>Projetos avulsos (sem CRM)</h3>
+  <table>
+    <tr><th>Produto</th><th>Preço de referência</th></tr>
+    <tr><td>Automação comercial/marketing sob demanda</td><td>R$ 30–90 mil / projeto</td></tr>
+    <tr><td>Agente de IA customizado (fine-tuning)</td><td>R$ 40–100 mil / projeto</td></tr>
+    <tr><td>Wolf Academy — treinamento de equipe com roleplay IA</td><td>R$ 5–15 mil / turma</td></tr>
+    <tr><td>Pacote mensal de conteúdo audiovisual</td><td>R$ 3–10 mil / mês</td></tr>
+    <tr><td>Cota de patrocínio Wolf TV</td><td>R$ 1–5 mil / mês</td></tr>
+  </table>
+
+  <div class="card amber">
+    <div class="card-title">Regra de preço</div>
+    Nunca vender "a licença" isolada. A venda é <strong>implantação + automação + licenças do primeiro ano ≈ R$ 90 mil por contrato</strong>. O setup cobre o custo real de configurar, integrar e treinar; a recorrência dos anos seguintes constrói o MRR que sustenta a empresa.
+  </div>
+  <div class="footer"><span>Wolf Tech — Plano Comercial</span><span>Uso interno</span></div>
+</div>
+
+<!-- ==================== PROCESSO + CANAIS + TIME ==================== -->
+<div class="page">
+  <h2><span class="num">03</span>PROCESSO DE VENDA — 5 ETAPAS</h2>
+  <div class="flow">
+    <div class="step"><span class="n">1</span><div><strong>Diagnóstico (30 min)</strong> — SDR qualifica: tem equipe de vendas? usa WhatsApp? tem processo? já usou CRM?</div></div>
+    <div class="step"><span class="n">2</span><div><strong>Demo ao vivo (45 min)</strong> — closer mostra o CRM real, operando 3 empresas, com o funil do próprio grupo</div></div>
+    <div class="step"><span class="n">3</span><div><strong>Piloto pago (14–30 dias, R$ 5–15 mil)</strong> — implantação real com escopo e meta por escrito</div></div>
+    <div class="step"><span class="n">4</span><div><strong>Proposta</strong> — ancorada no valor do projeto (setup + economia gerada), não na licença</div></div>
+    <div class="step"><span class="n">5</span><div><strong>Contrato + implantação</strong> — cronograma de 2–4 semanas, kickoff e go-live com data</div></div>
+  </div>
+
+  <h3>O que é o piloto pago — e por que funciona</h3>
+  <p>O cliente paga R$ 5–15 mil e recebe em 14–30 dias: CRM configurado <strong>dele</strong>, base importada, 1 automação rodando, equipe treinada e uma meta combinada por escrito. No fim: converte (o valor abate da implantação) ou encerra sem prejuízo para nós.</p>
+  <ul>
+    <li><strong>Filtra comprador real</strong> — quem paga pra testar já decidiu 80% da compra; trial grátis atrai curioso.</li>
+    <li><strong>Cria compromisso</strong> — cliente que pagou coloca a equipe pra usar; trial grátis morre no "depois a gente vê".</li>
+    <li><strong>É a melhor demo possível</strong> — em 30 dias o dono vê o funil rodando com os leads dele.</li>
+    <li><strong>Paga o custo de implantação</strong> — setup, importação e treinamento consomem hora do time.</li>
+  </ul>
+  <div class="card red">
+    <div class="card-title">Exceção de estratégia</div>
+    <strong>Clientes 1 e 2:</strong> piloto com preço simbólico ou grátis em troca de <strong>case público</strong> — depoimento, logo no site, permissão pra citar números. Esses dois cases vendem os próximos 20. <strong>Do cliente 3 em diante: piloto só pago.</strong>
+  </div>
+
+  <h2><span class="num">04</span>CANAIS DE AQUISIÇÃO</h2>
+  <table>
+    <tr><th>Canal</th><th>Como funciona</th><th>Custo</th></tr>
+    <tr><td><strong>Indicação MF Paris</strong></td><td>"A empresa X usa todo dia" — pedir 3 indicações formais ao cliente-âncora</td><td>zero</td></tr>
+    <tr><td><strong>Base CNAE (dentro do CRM)</strong></td><td>Prospecção por segmento: clínicas, agências, facilities, educação, recreação</td><td>zero</td></tr>
+    <tr><td><strong>WhatsApp outbound (SDR)</strong></td><td>Cadência rodada no próprio CRM — o produto prova a si mesmo vendendo</td><td>zero</td></tr>
+    <tr><td><strong>Conteúdo Wolf TV</strong></td><td>Cases filmados na Arena, "como a IA vende sozinha", bastidores do grupo</td><td>estrutura própria</td></tr>
+    <tr><td><strong>Parcerias B2B</strong></td><td>Contadores, consultorias, agências que já servem PMEs</td><td>comissão</td></tr>
+  </table>
+  <div class="footer"><span>Wolf Tech — Plano Comercial</span><span>Uso interno</span></div>
+</div>
+
+<!-- ==================== TIME + METAS + PRÓXIMOS PASSOS ==================== -->
+<div class="page">
+  <h2><span class="num">05</span>TIME COMERCIAL — PAPEL DE CADA UM</h2>
+  <table>
+    <tr><th>Papel</th><th>Quem</th><th>Responsabilidade</th></tr>
+    <tr><td><strong>Closer / Fundador</strong></td><td>Rogério</td><td>Demos, propostas high-ticket, fechamento, contas enterprise</td></tr>
+    <tr><td><strong>SDR</strong></td><td>1 contratação junior</td><td>Outbound CNAE + WhatsApp, 100 contatos/semana, agenda diagnósticos — responde ao COO, metas do head de receita</td></tr>
+    <tr><td><strong>Pré-vendas técnico</strong></td><td>Luan</td><td>Demos enterprise, integrações, dúvidas de segurança/SLA</td></tr>
+    <tr><td><strong>Prova social</strong></td><td>Marco Túlio + Felipe</td><td>Vídeos de case, conteúdo Wolf TV, bastidores do grupo</td></tr>
+    <tr><td><strong>Dono do caixa</strong></td><td>Cleriston (COO)</td><td>Precificação, comissões, fechamento mensal do funil na assembleia</td></tr>
+  </table>
+
+  <h2><span class="num">06</span>METAS SEMANAIS (RITO DE EXECUÇÃO)</h2>
+  <table>
+    <tr><th>Métrica</th><th>Meta</th><th>Dono</th></tr>
+    <tr><td>Contatos outbound</td><td>100 / semana</td><td>SDR</td></tr>
+    <tr><td>Conversas iniciadas</td><td>15 / semana</td><td>SDR</td></tr>
+    <tr><td>Diagnósticos agendados</td><td>3 / semana</td><td>SDR</td></tr>
+    <tr><td>Demos realizadas</td><td>2–3 / semana</td><td>Closer</td></tr>
+    <tr><td>Pilotos pagos</td><td>1–2 / mês</td><td>Closer</td></tr>
+    <tr><td>Clientes fechados</td><td>1 / mês</td><td>Time</td></tr>
+    <tr><td>Reunião de funil</td><td>toda segunda — relatório do CRM</td><td>todos</td></tr>
+  </table>
+
+  <h3>Trajetória de receita — 6 meses</h3>
+  <div class="grid3">
+    <div class="kpi"><div class="v">4–6</div><div class="l">clientes</div></div>
+    <div class="kpi"><div class="v">R$ 360–540k</div><div class="l">em contratos</div></div>
+    <div class="kpi"><div class="v">R$ 12–18k</div><div class="l">MRR recorrente</div></div>
+  </div>
+
+  <h2><span class="num">07</span>PRÓXIMOS PASSOS</h2>
+  <ul class="checklist">
+    <li>Configurar no CRM o funil de 5 etapas (Diagnóstico → Demo → Piloto → Proposta → Contrato) com cadências automáticas</li>
+    <li>Definir os 2 clientes-piloto (case em troca) e pedir 3 indicações formais à MF Paris</li>
+    <li>Contratar o SDR e rodar onboarding pela Wolf Academy (roleplay IA do próprio CRM)</li>
+    <li>Produzir 2 vídeos de prova social (estúdio próprio): case MF Paris + tour da Arena</li>
+    <li>Montar proposta-modelo PDF com as 3 faixas de preço e a âncora de R$ 100 mil</li>
+    <li>Multi-tenancy do CRM (org_id + RLS) — requisito técnico pra escalar implantações</li>
+  </ul>
+
+  <p class="muted" style="margin-top:8mm">A lógica: vender implantação + recorrência desde o dia 1, provar com 2 cases públicos e transformar cada implantação em case de venda — a mesma máquina que a Wolf Tech vende é a que roda a própria venda.</p>
+
+  <div class="footer"><span>Wolf Tech — Plano Comercial</span><span>Uso interno</span></div>
+</div>
+
+</body>
+</html>
