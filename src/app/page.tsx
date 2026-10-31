@@ -314,6 +314,14 @@ export default function Home() {
       <footer className="border-t border-wolf-blue/10 px-6 py-8 text-center text-xs text-wolf-muted flex flex-col gap-1">
         <p className="font-[family-name:var(--font-orbitron)] font-bold text-wolf-white tracking-wider">Wolf Tech</p>
         <p>© {new Date().getFullYear()} · Grupo de tecnologia, mídia e games · Av. Ivaí, 1178 · Dom Bosco · BH/MG</p>
+        <a
+          href={process.env.NEXT_PUBLIC_WOLF_CRM_URL || "http://localhost:5173"}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 text-[10px] font-[family-name:var(--font-rajdhani)] tracking-widest uppercase text-wolf-muted/50 hover:text-wolf-blue-light transition-colors"
+        >
+          Colaboradores
+        </a>
       </footer>
     </div>
   );
