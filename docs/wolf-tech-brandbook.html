@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Wolf Tech — Manual da Marca</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0D1117; --surface: #161B22; --surface-2: #1C2333;
+    --blue: #1A6FE8; --blue-light: #4DA6FF; --blue-deep: #0A3A8A;
+    --red: #E83030; --chrome: #8AB4D4; --white: #E8F4FF;
+    --muted: #8896AA; --amber: #F0A500; --green: #3FB950; --purple: #A371F7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4; margin: 0; }
+  body { background: var(--bg); color: var(--white); font-family: 'Inter', system-ui, sans-serif; font-size: 10pt; line-height: 1.55; }
+  .page {
+    width: 210mm; min-height: 296mm; padding: 16mm 15mm 22mm;
+    page-break-after: always; position: relative;
+    background:
+      linear-gradient(rgba(77,166,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(77,166,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px; background-color: var(--bg);
+  }
+  .page:last-child { page-break-after: auto; }
+  .footer {
+    position: absolute; bottom: 9mm; left: 15mm; right: 15mm;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'Rajdhani'; font-size: 8pt; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--muted);
+    border-top: 1px solid rgba(77,166,255,0.15); padding-top: 3mm;
+  }
+  .footer .brand { color: var(--blue-light); font-weight: 700; }
+  .pagenum { color: var(--amber); font-weight: 700; }
+  .cover { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+  .cover .logo { width: 78mm; max-width: 320px; border-radius: 14px; box-shadow: 0 0 70px rgba(26,111,232,0.45); margin-bottom: 11mm; }
+  .cover h1 { font-family: 'Orbitron'; font-size: 30pt; font-weight: 900; letter-spacing: 4px; text-shadow: 0 0 30px rgba(77,166,255,0.5); }
+  .cover h1 span { color: var(--blue-light); }
+  .cover .subtitle { font-family: 'Rajdhani'; font-size: 14pt; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--chrome); margin-top: 5mm; }
+  .cover .rule { width: 60mm; height: 2px; margin: 8mm auto; background: linear-gradient(90deg, transparent, var(--blue-light), transparent); }
+  .cover .meta { font-family: 'Rajdhani'; font-size: 10.5pt; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; line-height: 1.9; }
+  .cover .meta strong { color: var(--amber); font-weight: 600; }
+  h2 { font-family: 'Orbitron'; font-size: 14pt; font-weight: 700; letter-spacing: 1.2px; color: var(--blue-light); margin: 5mm 0 3.5mm; padding-bottom: 2mm; border-bottom: 1px solid rgba(77,166,255,0.25); }
+  h2 .num { color: var(--red); margin-right: 3mm; }
+  h3 { font-family: 'Rajdhani'; font-size: 11.5pt; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--chrome); margin: 4.5mm 0 2mm; }
+  p { margin-bottom: 2.8mm; }
+  p.muted, .dim { color: var(--muted); }
+  ul { margin: 0 0 3mm 5mm; }
+  li { margin-bottom: 1.4mm; }
+  li::marker { color: var(--blue-light); }
+  strong { color: var(--blue-light); font-weight: 600; }
+  .accent { color: var(--amber); font-weight: 600; }
+  .red { color: var(--red); font-weight: 600; }
+  .green { color: var(--green); font-weight: 600; }
+  .lead { font-size: 11pt; color: var(--chrome); font-weight: 500; border-left: 3px solid var(--blue); padding-left: 4mm; margin-bottom: 4mm; }
+  .card { background: var(--surface); border: 1px solid rgba(77,166,255,0.18); border-radius: 8px; padding: 3.5mm 4.5mm; margin-bottom: 3mm; }
+  .card h4 { font-family: 'Rajdhani'; font-size: 11pt; font-weight: 700; letter-spacing: 0.8px; color: var(--white); margin-bottom: 1.5mm; }
+  .card p { font-size: 9.5pt; color: var(--muted); margin-bottom: 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3mm; }
+  .grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 2.5mm; }
+  .callout { background: linear-gradient(135deg, rgba(26,111,232,0.12), rgba(10,58,138,0.08)); border: 1px solid rgba(77,166,255,0.3); border-radius: 8px; padding: 3.5mm 4.5mm; margin: 3.5mm 0; }
+  .callout.warn { border-color: rgba(240,165,0,0.4); background: linear-gradient(135deg, rgba(240,165,0,0.1), transparent); }
+  .callout.danger { border-color: rgba(232,48,48,0.4); background: linear-gradient(135deg, rgba(232,48,48,0.08), transparent); }
+  .callout p:last-child { margin-bottom: 0; }
+  table { width: 100%; border-collapse: collapse; margin: 3mm 0; font-size: 9pt; }
+  th { font-family: 'Rajdhani'; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; font-size: 8.5pt; color: var(--blue-light); background: rgba(26,111,232,0.12); padding: 2.5mm 3mm; text-align: left; border-bottom: 2px solid var(--blue); }
+  td { padding: 2.2mm 3mm; border-bottom: 1px solid rgba(77,166,255,0.12); vertical-align: top; }
+  tr:nth-child(even) td { background: rgba(77,166,255,0.03); }
+  .sw { border-radius: 6px; height: 16mm; display: flex; align-items: flex-end; padding: 2mm; font-family: 'Rajdhani'; font-weight: 700; font-size: 8pt; letter-spacing: 0.5px; }
+  .swcard { border-radius: 8px; overflow: hidden; border: 1px solid rgba(77,166,255,0.18); margin-bottom: 3mm; }
+  .swcard .meta2 { background: var(--surface); padding: 2mm 3mm; font-size: 8pt; color: var(--muted); }
+  .swcard .meta2 b { color: var(--white); display: block; font-size: 9.5pt; }
+  .logobox { background: var(--surface); border: 1px solid rgba(77,166,255,0.2); border-radius: 10px; padding: 8mm; text-align: center; }
+  .logobox img { max-width: 100%; border-radius: 6px; }
+  .safezone { border: 1px dashed var(--amber); display: inline-block; padding: 8mm; position: relative; }
+  .safezone::before { content: 'x'; position: absolute; top: -1mm; left: -1mm; font-family: 'Rajdhani'; font-weight: 700; color: var(--amber); font-size: 8pt; }
+  .misuse { display: grid; grid-template-columns: repeat(4,1fr); gap: 3mm; }
+  .mis { background: var(--surface); border: 1px solid rgba(232,48,48,0.35); border-radius: 8px; padding: 4mm 2mm; text-align: center; }
+  .mis .mimg { height: 22mm; display: flex; align-items: center; justify-content: center; margin-bottom: 2mm; }
+  .mis img { max-height: 100%; max-width: 100%; border-radius: 4px; }
+  .mis .mlbl { font-size: 7.5pt; color: var(--muted); }
+  .mis .x { color: var(--red); font-family: 'Orbitron'; font-weight: 900; font-size: 12pt; }
+  .quote { font-family: 'Rajdhani'; font-size: 13pt; font-weight: 600; color: var(--chrome); font-style: italic; text-align: center; padding: 4mm 8mm; line-height: 1.5; }
+  .typebox { border: 1px solid rgba(77,166,255,0.18); border-radius: 8px; padding: 4mm 5mm; margin-bottom: 3mm; background: var(--surface); }
+  .mono { font-family: 'Rajdhani'; font-size: 8pt; color: var(--muted); letter-spacing: 1px; }
+</style>
+</head>
+<body>
+
+<!-- ==================== CAPA ==================== -->
+<div class="page cover">
+  <img class="logo" src="../public/images/logo-dark-bg.jpg" alt="Wolf Tech">
+  <h1>MANUAL <span>DA MARCA</span></h1>
+  <div class="subtitle">Wolf Tech · Diretrizes de identidade visual e verbal</div>
+  <div class="rule"></div>
+  <div class="meta">
+    <strong>Regulagem da marca</strong> — logo, cores, tipografia, voz e aplicações<br>
+    Uso obrigatório para todo material produzido por qualquer empresa do grupo
+  </div>
+</div>
+
+<!-- ==================== 01 A MARCA ==================== -->
+<div class="page">
+  <h2><span class="num">01</span>A marca — quem é a Wolf Tech</h2>
+  <p class="lead">A Wolf Tech é a matriz de tecnologia do grupo: a empresa que constrói os sistemas,
+  a IA e a engenharia que sustentam todas as outras. A marca precisa comunicar três coisas
+  simultaneamente — <strong>precisão técnica, postura de matilha e ambição de conglomerado.</strong></p>
+
+  <h3>Os 4 pilares da personalidade</h3>
+  <div class="grid2">
+    <div class="card"><h4>Precisão</h4><p>Linhas geométricas, grid, engenharia. Nada é decorativo sem função — como o código que escrevemos.</p></div>
+    <div class="card"><h4>Matilha</h4><p>O lobo nunca anda sozinho. A marca é plural: sete empresas, uma matriz, um alfabeto visual comum.</p></div>
+    <div class="card"><h4>Noite</h4><p>A marca vive no escuro — fundo profundo, azul elétrico, brilho controlado. É a estética da madrugada em que o produto nasce.</p></div>
+    <div class="card"><h4>Ambição</h4><p>Tipografia display de presença, afirmações diretas, nada de timidez. A marca fala como quem constrói um grupo.</p></div>
+  </div>
+
+  <h3>O símbolo — a cabeça do lobo</h3>
+  <p>O símbolo é a <strong>face frontal do lobo construída em linhas geométricas ciano</strong>,
+  envolvida por fones de ouvido — a assinatura de que somos uma empresa de <strong>tecnologia e mídia</strong>.
+  O animal comunica instinto e matilha; o fone comunica o produto: som, sistema, software.</p>
+  <ul>
+    <li><strong>Geometria:</strong> todas as linhas do símbolo são retas e segmentadas — nunca curvas orgânicas.</li>
+    <li><strong>Monocromia:</strong> a versão oficial usa apenas o ciano-azul sobre fundo escuro.</li>
+    <li><strong>Simetria:</strong> a face é perfeitamente frontal e espelhada — postura de confronto direto.</li>
+  </ul>
+  <div class="callout">
+    <p><strong>Regra de ouro:</strong> a marca Wolf Tech nunca aparece "apagada". Fundo claro é exceção
+    documentada neste manual — o habitat natural da marca é o escuro.</p>
+  </div>
+  <div class="footer"><span class="brand">WOLF TECH</span><span>Manual da Marca</span><span class="pagenum">02</span></div>
+</div>
+
+<!-- ==================== 02 LOGO ==================== -->
+<div class="page">
+  <h2><span class="num">02</span>A assinatura — logo principal e secundária</h2>
+  <p class="lead">A assinatura oficial combina o símbolo do lobo e o logotipo "WOLF&nbsp;TECH" em caixa
+  alta geométrica. O símbolo dentro do "O" vira o cursor/&gt; — o detalhe que liga marca e código.</p>
+
+  <div class="grid2">
+    <div>
+      <h3>Versão principal (fundo escuro)</h3>
+      <div class="logobox"><img src="../public/images/logo-dark-bg.jpg" alt="Logo principal"></div>
+      <p class="dim" style="margin-top:2mm; font-size:8.5pt;">Uso obrigatório em: site, apresentações, documentos, telas de produto, vídeo e social.</p>
+    </div>
+    <div>
+      <h3>Versão para fundo claro</h3>
+      <div class="logobox" style="background:#E8F4FF;"><img src="../public/images/logo-white-bg.jpg" alt="Logo fundo claro" style="background:#E8F4FF;"></div>
+      <p class="dim" style="margin-top:2mm; font-size:8.5pt;">Uso excepcional: documentos impressos em branco, e-mail corporativo, materiais terceiros com fundo claro.</p>
+    </div>
+  </div>
+
+  <h3>As três formas permitidas</h3>
+  <table>
+    <tr><th>Forma</th><th>Composição</th><th>Onde usar</th></tr>
+    <tr><td><strong>Assinatura completa</strong></td><td class="dim">Símbolo + "WOLF TECH"</td><td class="dim">Capas, rodapés oficiais, materiais institucionais</td></tr>
+    <tr><td><strong>Símbolo isolado</strong></td><td class="dim">Só a cabeça do lobo</td><td class="dim">Avatar, favicon, marca d'água, ícone de app</td></tr>
+    <tr><td><strong>Logotipo isolado</strong></td><td class="dim">Só "WOLF TECH"</td><td class="dim">Faixas horizontais estreitas (navbar, header)</td></tr>
+  </table>
+  <div class="footer"><span class="brand">WOLF TECH</span><span>Manual da Marca</span><span class="pagenum">03</span></div>
+</div>
+
+<!-- ==================== 03 ÁREA DE PROTEÇÃO ==================== -->
+<div class="page">
+  <h2><span class="num">03</span>Regulagem — área de proteção e tamanho</h2>
+  <p class="lead">A logo precisa respirar. A área de proteção garante que nenhum elemento gráfico
+  invada o espaço do símbolo — é o que separa marca forte de marca improvisada.</p>
+
+  <h3>Área de proteção = 1 focinho</h3>
+  <p>A unidade de medida é a altura do focinho do lobo (<strong>x</strong>). Ao redor da assinatura inteira,
+  deve existir <strong>1x de respiro livre em todas as direções</strong> — nenhum texto, ícone, foto ou
+  borda pode invadir.</p>
+  <div style="text-align:center; margin: 6mm 0;">
+    <div class="safezone"><img src="../public/images/logo-dark-bg.jpg" style="height: 42mm;" alt="Área de proteção"></div>
+    <p class="dim" style="margin-top:2mm; font-size:8.5pt;">Área pontilhada = zona de exclusão de 1x ao redor da assinatura.</p>
+  </div>
+
+  <h3>Tamanho mínimo</h3>
+  <table>
+    <tr><th>Meio</th><th>Mínimo permitido</th><th>Observação</th></tr>
+    <tr><td><strong>Digital (assinatura completa)</strong></td><td>90px de largura</td><td class="dim">Abaixo disso o "TECH" some — usar só o símbolo</td></tr>
+    <tr><td><strong>Digital (símbolo isolado)</strong></td><td>24px</td><td class="dim">Mínimo para favicon/avatar</td></tr>
+    <tr><td><strong>Impresso (assinatura)</strong></td><td>30mm de largura</td><td class="dim">Cartão, papel timbrado</td></tr>
+    <tr><td><strong>Impresso (símbolo)</strong></td><td>8mm</td><td class="dim">Selo, etiqueta</td></tr>
+  </table>
+
+  <h3>Fundos permitidos</h3>
+  <ul>
+    <li><strong>Obrigatório:</strong> fundos escuros da paleta (#0D1117, #161B22, #1C2333) ou fotos escuras com overlay.</li>
+    <li><strong>Exceção documentada:</strong> a versão clara só em #E8F4FF ou branco puro.</li>
+    <li><strong>Sempre:</strong> contraste mínimo de 4.5:1 entre o ciano do símbolo e o fundo.</li>
+  </ul>
+  <div class="footer"><span class="brand">WOLF TECH</span><span>Manual da Marca</span><span class="pagenum">04</span></div>
+</div>
+
+<!-- ==================== 04 MISUSE ==================== -->
+<div class="page">
+  <h2><span class="num">04</span>O que a marca nunca faz</h2>
+  <p class="lead">As oito proibições. Qualquer material que viole uma delas está errado —
+  ponto final, sem discussão.</p>
+  <div class="misuse">
+    <div class="mis"><div class="x">✕</div><div class="mimg"><img src="../public/images/logo-dark-bg.jpg" style="filter:hue-rotate(140deg);"></div><div class="mlbl">Mudar a cor do símbolo</div></div>
+    <div class="mis"><div class="x">✕</div><div class="mimg"><img src="../public/images/logo-dark-bg.jpg" style="transform:rotate(15deg);"></div><div class="mlbl">Rotacionar ou inclinar</div></div>
+    <div class="mis"><div class="x">✕</div><div class="mimg"><img src="../public/images/logo-dark-bg.jpg" style="transform:scaleX(0.6);"></div><div class="mlbl">Esticar ou comprimir</div></div>
+    <div class="mis"><div class="x">✕</div><div class="mimg"><img src="../public/images/logo-dark-bg.jpg" style="filter:blur(2px);"></div><div class="mlbl">Borrar ou degradê</div></div>
+    <div class="mis"><div class="x">✕</div><div class="mimg" style="background:#F0A500; border-radius:4px;"><img src="../public/images/logo-dark-bg.jpg" style="height:18mm;"></div><div class="mlbl">Fundo claro não listado</div></div>
+    <div class="mis"><div class="x">✕</div><div class="mimg"><img src="../public/images/logo-dark-bg.jpg" style="filter:contrast(0.3) brightness(1.6);"></div><div class="mlbl">Baixo contraste</div></div>
+    <div class="mis"><div class="x">✕</div><div class="mimg"><img src="../public/images/logo-dark-bg.jpg" style="filter:drop-shadow(0 0 15px #fff);"></div><div class="mlbl">Glow exagerado/neon</div></div>
+    <div class="mis"><div class="x">✕</div><div class="mimg"><img src="../public/images/logo-dark-bg.jpg" style="filter:invert(1);"></div><div class="mlbl">Inverter cores</div></div>
+  </div>
+  <div class="callout danger">
+    <p><strong>E também é proibido:</strong> recriar a logo em outra fonte · separar símbolo e texto com
+    elementos no meio · colocar a logo dentro de molduras/bordas apertadas · usar versões antigas
+    (lobo vermelho legado MF Paris) · aplicar sobre fotos claras sem overlay.</p>
+  </div>
+  <div class="footer"><span class="brand">WOLF TECH</span><span>Manual da Marca</span><span class="pagenum">05</span></div>
+</div>
+
+<!-- ==================== 05 CORES ==================== -->
+<div class="page">
+  <h2><span class="num">05</span>Paleta oficial</h2>
+  <p class="lead">A cor da marca é o ciano-azul elétrico sobre a noite profunda. A paleta é fechada —
+  nenhuma cor fora desta tabela entra em material oficial.</p>
+  <h3>Primárias</h3>
+  <div class="grid3">
+    <div class="swcard"><div class="sw" style="background:#1A6FE8; color:#E8F4FF;">Azul Wolf</div><div class="meta2"><b>#1A6FE8</b>Cor de ação — botões, links, ênfase</div></div>
+    <div class="swcard"><div class="sw" style="background:#4DA6FF; color:#0D1117;">Ciano / Azul Claro</div><div class="meta2"><b>#4DA6FF</b>A cor da marca — símbolo, highlights, glow</div></div>
+    <div class="swcard"><div class="sw" style="background:#0A3A8A; color:#E8F4FF;">Azul Profundo</div><div class="meta2"><b>#0A3A8A</b>Gradientes, profundidade, divisores</div></div>
+  </div>
+  <h3>Fundos e superfícies</h3>
+  <div class="grid3">
+    <div class="swcard"><div class="sw" style="background:#0D1117; color:#8896AA; border:1px solid rgba(77,166,255,0.2);">Noite Wolf</div><div class="meta2"><b>#0D1117</b>Fundo base — 90% das telas</div></div>
+    <div class="swcard"><div class="sw" style="background:#161B22; color:#8896AA; border:1px solid rgba(77,166,255,0.2);">Superfície</div><div class="meta2"><b>#161B22</b>Cards, painéis, vidro</div></div>
+    <div class="swcard"><div class="sw" style="background:#1C2333; color:#8896AA; border:1px solid rgba(77,166,255,0.2);">Superfície 2</div><div class="meta2"><b>#1C2333</b>Cards elevados, modais</div></div>
+  </div>
+  <h3>Texto</h3>
+  <div class="grid3">
+    <div class="swcard"><div class="sw" style="background:#E8F4FF; color:#0D1117;">Branco Wolf</div><div class="meta2"><b>#E8F4FF</b>Títulos e corpo principal</div></div>
+    <div class="swcard"><div class="sw" style="background:#8AB4D4; color:#0D1117;">Cromado</div><div class="meta2"><b>#8AB4D4</b>Subtítulos, labels</div></div>
+    <div class="swcard"><div class="sw" style="background:#8896AA; color:#0D1117;">Cinza Mudo</div><div class="meta2"><b>#8896AA</b>Texto secundário, discretos</div></div>
+  </div>
+  <h3>Funcionais (uso restrito)</h3>
+  <div class="grid4">
+    <div class="swcard"><div class="sw" style="background:#E83030; color:#E8F4FF;">Vermelho</div><div class="meta2"><b>#E83030</b>Erros, alertas, marca da numeração</div></div>
+    <div class="swcard"><div class="sw" style="background:#F0A500; color:#0D1117;">Âmbar</div><div class="meta2"><b>#F0A500</b>Destaques, metas, "quente"</div></div>
+    <div class="swcard"><div class="sw" style="background:#3FB950; color:#0D1117;">Verde</div><div class="meta2"><b>#3FB950</b>Sucesso, status ativo</div></div>
+    <div class="swcard"><div class="sw" style="background:#A371F7; color:#E8F4FF;">Roxo</div><div class="meta2"><b>#A371F7</b>Mídia/conteúdo (Wolf TV)</div></div>
+  </div>
+  <p class="muted" style="font-size:8.5pt;">Proporção da paleta: ~70% noite/superfícies · ~20% branco/cromado · ~8% azul/ciano · ~2% funcionais.</p>
+  <div class="footer"><span class="brand">WOLF TECH</span><span>Manual da Marca</span><span class="pagenum">06</span></div>
+</div>
+
+<!-- ==================== 06 TIPOGRAFIA ==================== -->
+<div class="page">
+  <h2><span class="num">06</span>Tipografia</h2>
+  <p class="lead">Três fontes, três papéis. Qualquer texto oficial que saia dessa hierarquia está fora da marca.</p>
+
+  <div class="typebox">
+    <span class="mono">DISPLAY — ORBITRON (Bold/Black, tracking largo)</span>
+    <p style="font-family:'Orbitron'; font-weight:900; font-size:20pt; letter-spacing:3px; margin:2mm 0 1mm;">WOLF TECH</p>
+    <p class="dim" style="font-size:9pt;">Uso: logotipo, títulos de página/seção, números de destaque, chamadas de capa. Sempre caixa alta. Peso 700–900.</p>
+  </div>
+  <div class="typebox">
+    <span class="mono">ESTRUTURA — RAJDHANI (SemiBold/Bold, tracking médio)</span>
+    <p style="font-family:'Rajdhani'; font-weight:700; font-size:15pt; letter-spacing:1.5px; margin:2mm 0 1mm; text-transform:uppercase;">Subtítulos, labels e navegação</p>
+    <p class="dim" style="font-size:9pt;">Uso: subtítulos, botões, menus, etiquetas, KPIs, cabeçalhos de tabela, badges. Caixa alta em labels; corpo em sentence case quando parágrafo.</p>
+  </div>
+  <div class="typebox">
+    <span class="mono">CORPO — INTER (Regular/Medium)</span>
+    <p style="font-family:'Inter'; font-size:11pt; margin:2mm 0 1mm;">Texto corrido, descrições e conteúdo longo — legibilidade primeiro.</p>
+    <p class="dim" style="font-size:9pt;">Uso: parágrafos, descrições de card, tabelas, copy de e-mail/documentos. Sentence case, peso 400–600.</p>
+  </div>
+
+  <h3>Hierarquia de tamanhos (referência digital)</h3>
+  <table>
+    <tr><th>Nível</th><th>Fonte</th><th>Tamanho</th><th>Cor</th></tr>
+    <tr><td>H1 / capa</td><td>Orbitron 900</td><td>28–40pt</td><td class="dim">Branco Wolf</td></tr>
+    <tr><td>H2 / seção</td><td>Orbitron 700</td><td>14–16pt</td><td class="dim">Azul Claro</td></tr>
+    <tr><td>H3 / bloco</td><td>Rajdhani 700</td><td>11–12pt caps</td><td class="dim">Cromado</td></tr>
+    <tr><td>Corpo</td><td>Inter 400/500</td><td>9–11pt</td><td class="dim">Branco Wolf</td></tr>
+    <tr><td>Nota / discreto</td><td>Inter 400</td><td>7.5–8.5pt</td><td class="dim">Cinza Mudo</td></tr>
+  </table>
+  <div class="footer"><span class="brand">WOLF TECH</span><span>Manual da Marca</span><span class="pagenum">07</span></div>
+</div>
+
+<!-- ==================== 07 ELEMENTOS ==================== -->
+<div class="page">
+  <h2><span class="num">07</span>Linguagem gráfica</h2>
+  <p class="lead">Além de logo e cor, a marca tem uma gramática visual própria — os elementos que fazem
+  qualquer material ser reconhecível como Wolf mesmo sem a logo.</p>
+  <div class="grid2">
+    <div class="card"><h4>O Grid (malha técnica)</h4><p>Fundo de linhas de grade 40×40px a 3–4% de opacidade azul. Está em todas as páginas deste manual — é a "mesa de engenharia" da marca.</p></div>
+    <div class="card"><h4>Glow contido</h4><p>Brilho azul suave atrás da logo e em elementos-âncora. Sempre ~0.3–0.5 de opacidade — nunca neon, nunca forte demais.</p></div>
+    <div class="card"><h4>Glass (vidro)</h4><p>Painéis com blur e borda azul a 15% — usado em headers e modais sobre o grid.</p></div>
+    <div class="card"><h4>Bordas de precisão</h4><p>Radius 6–14px, borda 1px azul a 15–35%. Cantos retos demais = errado; muito arredondados = errado.</p></div>
+    <div class="card"><h4>Linhas divisórias</h4><p>Gradiente horizontal transparente→ciano→transparente — a "régua" da marca, separa seções.</p></div>
+    <div class="card"><h4>Tags/badges</h4><p>Pílulas com borda fina, texto Rajdhani caps tracking largo — status, categorias, selos.</p></div>
+  </div>
+  <h3>Fotografia e imagem</h3>
+  <ul>
+    <li><strong>Direção:</strong> cenas escuras, neon azul natural ou acrescido, setups reais (PCs, sede, equipe trabalhando) — nunca stock genérico claro.</li>
+    <li><strong>Tratamento:</strong> overlay azul-profundo 40–60% sobre foto, texto sempre em Branco Wolf.</li>
+    <li><strong>IA-generativa:</strong> permitida para arte de campanha desde que na paleta oficial (como a própria logo).</li>
+  </ul>
+  <div class="footer"><span class="brand">WOLF TECH</span><span>Manual da Marca</span><span class="pagenum">08</span></div>
+</div>
+
+<!-- ==================== 08 SUB-MARCAS ==================== -->
+<div class="page">
+  <h2><span class="num">08</span>A arquitetura de marcas do grupo</h2>
+  <p class="lead">A Wolf Tech é matriz: as empresas do grupo carregam o prefixo "Wolf" e o alfabeto
+  visual comum — mesma paleta-base, mesma tipografia, variação só na cor de acento.</p>
+  <table>
+    <tr><th>Empresa</th><th>Papel</th><th>Acento</th><th>Status</th></tr>
+    <tr><td><strong>Wolf Arena</strong></td><td class="dim">Lan house + produto vivo (app de reservas)</td><td>Azul Wolf #1A6FE8</td><td class="green">Ativa</td></tr>
+    <tr><td><strong>Wolf Tech</strong></td><td class="dim">Núcleo — software, IA, engenharia</td><td>Ciano #4DA6FF</td><td class="dim">Matriz</td></tr>
+    <tr><td><strong>Wolf CRM</strong></td><td class="dim">Produto comercial B2B do grupo</td><td>Azul Wolf #1A6FE8</td><td class="green">Em produção</td></tr>
+    <tr><td><strong>Wolf TV</strong></td><td class="dim">Canal de conteúdo, podcast, cobertura</td><td>Roxo #A371F7</td><td class="accent">Em produção</td></tr>
+    <tr><td><strong>Wolf Audiovisual</strong></td><td class="dim">Estúdio e produção B2B</td><td>Cromado #8AB4D4</td><td class="green">Ativa</td></tr>
+    <tr><td><strong>Wolf Academy</strong></td><td class="dim">Academia de vendas interna + produto</td><td>Âmbar #F0A500</td><td class="accent">Em breve</td></tr>
+    <tr><td><strong>Wolf Engineering</strong></td><td class="dim">Projetos de engenharia e AutoCAD</td><td>Cromado #8AB4D4</td><td class="green">Ativa</td></tr>
+    <tr><td><strong>Turbo Açaí</strong></td><td class="dim">Varejo alimentar da sede</td><td>Rosa/magenta próprio</td><td class="green">Ativa</td></tr>
+  </table>
+  <h3>Regras de convivência</h3>
+  <ul>
+    <li><strong>Prefixo "Wolf" sempre em Orbitron caps</strong> no nome oficial; o sufixo pode variar de cor por empresa.</li>
+    <li><strong>O símbolo-matriz (cabeça do lobo) é exclusivo da Wolf Tech</strong> — sub-marcas usam variação tipográfica, não recriam o lobo.</li>
+    <li><strong>Assinatura de origem:</strong> material de qualquer empresa termina com a assinatura completa da Wolf Tech pequena no rodapé — a marca-matriz sempre assina por baixo.</li>
+    <li><strong>Turbo Açaí</strong> é a única com identidade própria solta (varejo) — mas também assina "do grupo Wolf Tech" em material institucional.</li>
+  </ul>
+  <div class="footer"><span class="brand">WOLF TECH</span><span>Manual da Marca</span><span class="pagenum">09</span></div>
+</div>
+
+<!-- ==================== 09 VOZ ==================== -->
+<div class="page">
+  <h2><span class="num">09</span>Voz e tom — como a marca fala</h2>
+  <p class="lead">A voz da Wolf Tech é a de quem <strong>constrói</strong> — direta, técnica quando precisa,
+  confiante sem arrogância, e sempre em português claro.</p>
+  <h3>A voz é sempre</h3>
+  <div class="grid2">
+    <div class="card"><h4>Direta</h4><p>Frases curtas, verbo antes de adjetivo. "O funil termina na entrega" — não "solução integrada de gestão do ciclo de vendas".</p></div>
+    <div class="card"><h4>Provadora</h4><p>A marca mostra, não promete: números, demos, produto vivo. "Já roda em 5 empresas" &gt; "líder de mercado".</p></div>
+    <div class="card"><h4>Confiante</h4><p>Afirmações limpas sem hedge. Não usamos "talvez", "tentamos" — usamos "faz", "funciona".</p></div>
+    <div class="card"><h4>Da matilha</h4><p>Plural quando institucional ("nós construímos"), singular quando técnico. Nunca corporativo genérico.</p></div>
+  </div>
+  <h3>Vocabulário da marca</h3>
+  <table>
+    <tr><th>Dizemos</th><th>Nunca dizemos</th></tr>
+    <tr><td>construímos, operamos, funil, agente, matilha, noite, prova, ao vivo</td><td class="dim">sinergia, solução end-to-end, disruptivo, player de mercado</td></tr>
+    <tr><td>"funcionário digital", "o funil termina na entrega", "produto vivo"</td><td class="dim">jargão de consultoria, termos em inglês sem necessidade</td></tr>
+  </table>
+  <h3>Tom por contexto</h3>
+  <ul>
+    <li><strong>Comercial:</strong> agressivo na prova, elegante no trato — "mostra, não vende".</li>
+    <li><strong>Técnico:</strong> preciso e sem marketing — documentação fala como engenheiro fala.</li>
+    <li><strong>Institucional:</strong> de conglomerado — fala do grupo inteiro, assina pela matriz.</li>
+    <li><strong>Produto (UI):</strong> curto e funcional — botões de 1–2 palavras, erros explicados em uma linha.</li>
+  </ul>
+  <div class="callout">
+    <p><strong>Teste rápido:</strong> se a frase cabe num site de consultoria genérica, não é Wolf. Se parece
+    dita por quem passou a noite construindo o produto, é.</p>
+  </div>
+  <div class="footer"><span class="brand">WOLF TECH</span><span>Manual da Marca</span><span class="pagenum">10</span></div>
+</div>
+
+<!-- ==================== 10 APLICAÇÕES ==================== -->
+<div class="page">
+  <h2><span class="num">10</span>Aplicações — onde a marca vive</h2>
+  <h3>Digital</h3>
+  <ul>
+    <li><strong>Site (arenawolf):</strong> logo 36px navbar / 140px hero, sobre grid + glass, sempre assinatura completa.</li>
+    <li><strong>Wolf CRM:</strong> símbolo isolado na sidebar + favicon; login com assinatura completa.</li>
+    <li><strong>Social:</strong> avatar = símbolo isolado; capas com grid + logo completa; posts com tipografia Rajdhani/Orbitron.</li>
+    <li><strong>E-mail:</strong> header com símbolo pequeno à esquerda + "Wolf Tech"; assinatura em Inter.</li>
+  </ul>
+  <h3>Documentos e apresentações</h3>
+  <ul>
+    <li><strong>Documentos oficiais</strong> (guias, planos, propostas): formato deste manual — grid, capa com logo grande + glow, rodapé "WOLF TECH · título · página".</li>
+    <li><strong>Apresentações:</strong> slide mestre escuro, Orbitron nos títulos, máximo 1 ideia por slide.</li>
+    <li><strong>Propostas comerciais:</strong> capa escura com símbolo + grid; tabelas com header azul.</li>
+  </ul>
+  <h3>Físico e sede</h3>
+  <ul>
+    <li><strong>Uniforme:</strong> preto com símbolo ciano no peito + "WOLF TECH" nas costas em Orbitron.</li>
+    <li><strong>Sinalização interna:</strong> acrílico escuro + ciano; placas em Rajdhani caps.</li>
+    <li><strong>Evento/stand:</strong> backdrop grid + símbolo grande com glow — o stand deve ser reconhecido de longe pelo lobo.</li>
+  </ul>
+  <h3>Boilerplate de textos (copiar e adaptar)</h3>
+  <div class="callout">
+    <p style="margin-bottom:2mm;"><strong>Uma linha:</strong> "Wolf Tech — a matriz de tecnologia do grupo."</p>
+    <p style="margin-bottom:2mm;"><strong>Curto:</strong> "A Wolf Tech constrói o software, a IA e a engenharia por trás das empresas do grupo — e vende o que funciona aqui dentro."</p>
+    <p><strong>Assinatura de e-mail:</strong> "Nome · Cargo · Wolf Tech · Belo Horizonte/MG"</p>
+  </div>
+  <div class="footer"><span class="brand">WOLF TECH</span><span>Manual da Marca</span><span class="pagenum">11</span></div>
+</div>
+
+<!-- ==================== FECHAMENTO ==================== -->
+<div class="page cover">
+  <img class="logo" src="../public/images/logo-dark-bg.jpg" alt="Wolf Tech" style="width: 55mm;">
+  <h2 style="border:none; text-align:center;">A marca em uma frase</h2>
+  <div class="quote" style="font-size: 15pt; color: var(--white);">
+    "Geométrico, noturno, direto —<br>
+    a marca de quem <span style="color: var(--blue-light);">constrói na madrugada</span><br>
+    e mostra de dia."
+  </div>
+  <div class="rule"></div>
+  <div class="meta">
+    <strong>Manual da Marca</strong> · Wolf Tech · v1.0 · outubro/2026<br>
+    Dúvidas de aplicação: diretoria Wolf Tech antes de publicar
+  </div>
+</div>
+
+</body>
+</html>
