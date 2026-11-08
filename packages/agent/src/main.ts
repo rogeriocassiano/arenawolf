@@ -4,7 +4,7 @@ import { getConfig, isConfigured, setConfig } from "./config";
 import { validatePin, endCurrentSession, subscribeToSession, subscribeToMachineControl, getRemainingSeconds, getCurrentSession, loginWithCredentials, fetchMachineApps } from "./session";
 import { lockScreen, disableSystemKeys, enableSystemKeys } from "./lock";
 
-nativeTheme.themeSource = "dark";
+if (nativeTheme) nativeTheme.themeSource = "dark";
 
 let lockWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
