@@ -14,9 +14,9 @@ const store = new Store<AgentConfig>({
   defaults: {
     machineId: "",
     machineName: "",
-    supabaseUrl: "https://uxxuspwortgwqaftcfrw.supabase.co",
+    supabaseUrl: "https://wuobcpjzprvbmogvqiqq.supabase.co",
     supabaseKey: "",
-    apiBaseUrl: "https://arenawolf.netlify.app",
+    apiBaseUrl: "https://arenawolftech.netlify.app",
     agentKey: "",
   },
 });

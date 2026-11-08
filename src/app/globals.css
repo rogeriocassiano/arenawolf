@@ -81,3 +81,6 @@ html {
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover { background: #4DA6FF; }
+
+/* Esconde o badge "Powered by Netlify" (plano free injeta iframes nl-*) */
+[id^="nl-"] { display: none !important; }
