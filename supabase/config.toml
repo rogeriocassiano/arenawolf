@@ -1,4 +1,8 @@
 project_id = "arenawolf"
 
+[auth]
+site_url = "https://arena-wolftech-app.netlify.app"
+additional_redirect_urls = ["https://arena-wolftech-app.netlify.app/auth/callback", "https://arena-wolftech-app.netlify.app/auth/callback?next=/reset-password"]
+
 [auth.email]
 enable_confirmations = false

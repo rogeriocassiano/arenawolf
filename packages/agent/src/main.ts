@@ -1,10 +1,32 @@
 import { app, BrowserWindow, ipcMain, screen, nativeTheme, IpcMainInvokeEvent } from "electron";
 import path from "path";
+import fs from "fs";
+import os from "os";
+
+const LOG_FILE = path.join(os.tmpdir(), "arena-wolf-agent.log");
+function log(msg: string) {
+  try { fs.appendFileSync(LOG_FILE, `[${new Date().toISOString()}] ${msg}\n`); } catch {}
+}
+process.on("uncaughtException", (e) => log(`UNCAUGHT: ${e.stack}`));
+process.on("unhandledRejection", (e) => log(`UNHANDLED: ${e}`));
+log(`=== boot pid=${process.pid} electron=${process.versions.electron} ===`);
+
 import { getConfig, isConfigured, setConfig } from "./config";
 import { validatePin, endCurrentSession, subscribeToSession, subscribeToMachineControl, getRemainingSeconds, getCurrentSession, loginWithCredentials, fetchMachineApps } from "./session";
 import { lockScreen, disableSystemKeys, enableSystemKeys } from "./lock";
 
 if (nativeTheme) nativeTheme.themeSource = "dark";
+
+const diagnosticMode = process.argv.includes("--diagnostic");
+if (!diagnosticMode && !app.requestSingleInstanceLock()) app.exit(0);
+app.on("second-instance", () => {
+  const window = BrowserWindow.getAllWindows()[0];
+  if (window) {
+    if (window.isMinimized()) window.restore();
+    window.show();
+    window.focus();
+  }
+});
 
 let lockWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
@@ -14,13 +36,14 @@ let unsubscribeMachineControl: (() => void) | null = null;
 let sessionCheckInterval: NodeJS.Timeout | null = null;
 
 function createLockScreen() {
-  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+  const { x, y, width, height } = screen.getPrimaryDisplay().bounds;
 
   lockWindow = new BrowserWindow({
     width,
     height,
-    x: 0,
-    y: 0,
+    x,
+    y,
+    show: false,
     frame: false,
     alwaysOnTop: true,
     skipTaskbar: true,
@@ -35,9 +58,17 @@ function createLockScreen() {
     },
   });
 
-  lockWindow.loadFile(path.join(__dirname, "../renderer/lock.html"));
-  lockWindow.setAlwaysOnTop(true, "screen-saver");
-  lockWindow.focus();
+  const window = lockWindow;
+  window.once("ready-to-show", () => {
+    window.setBounds({ x, y, width, height });
+    window.setKiosk(true);
+    window.setFullScreen(true);
+    window.setAlwaysOnTop(true, "screen-saver");
+    window.show();
+    window.focus();
+    log(`lock visible=${window.isVisible()} fullscreen=${window.isFullScreen()} kiosk=${window.isKiosk()}`);
+  });
+  window.loadFile(path.join(__dirname, "../renderer/lock.html")).catch(error => log(`lock load failed: ${error}`));
 
   // Impedir que Alt+F4 ou qualquer sinal feche a janela de lock
   lockWindow.on("close", (e: { preventDefault: () => void }) => { e.preventDefault(); lockWindow?.focus(); });
@@ -244,13 +275,41 @@ ipcMain.handle("set-config", (_event: IpcMainInvokeEvent, partial: Record<string
 });
 
 app.whenReady().then(async () => {
+  log("whenReady");
+  if (process.argv.includes("--diagnostic")) {
+    const diagnosticWindow = new BrowserWindow({ width: 900, height: 700, webPreferences: { contextIsolation: true, nodeIntegration: false } });
+    await diagnosticWindow.loadFile(path.join(__dirname, "../renderer/lock.html"));
+    log(`diagnostic loaded visible=${diagnosticWindow.isVisible()}`);
+    try {
+      const { createClient } = await import("@supabase/supabase-js");
+      const cfg = getConfig();
+      const { default: WebSocket } = await import("ws");
+      const client = createClient(cfg.supabaseUrl, cfg.supabaseKey, { realtime: { transport: WebSocket as unknown as typeof globalThis.WebSocket } });
+      const probe = client.channel("diagnostic-probe").subscribe();
+      await client.removeChannel(probe);
+      log("diagnostic realtime initialized");
+    } catch (error) {
+      log(`diagnostic realtime failed: ${error}`);
+    }
+    diagnosticWindow.show();
+    setTimeout(() => app.exit(0), 10000);
+    return;
+  }
+  if (process.platform === "win32" && app.isPackaged) {
+    app.setLoginItemSettings({ openAtLogin: true, path: process.execPath, args: [] });
+    log(`startup registered=${app.getLoginItemSettings().openAtLogin}`);
+  }
   const cfg = getConfig();
+  log(`configured=${isConfigured()} machineId=${cfg.machineId || "(vazio)"}`);
 
   if (!isConfigured()) {
     // Abrir janela de setup
+    log("abrindo setup");
     createSetupWindow();
     return;
   }
+  log("abrindo lock screen");
+  showLockedState();
 
   // Subscrever Realtime para comandos de controle da máquina (shutdown remoto)
   unsubscribeMachineControl = subscribeToMachineControl(cfg.machineId, async () => {

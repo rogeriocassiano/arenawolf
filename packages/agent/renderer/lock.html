@@ -21,6 +21,7 @@
 
     body {
       background: var(--wolf-bg);
+      isolation: isolate;
       color: var(--wolf-white);
       font-family: 'Rajdhani', sans-serif;
       height: 100vh;
@@ -38,7 +39,8 @@
       content: '';
       position: fixed;
       inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(29,111,237,0.12) 0%, transparent 70%);
+      background: linear-gradient(rgba(10,12,16,0.88), rgba(10,12,16,0.94)), url('../assets/logo-wolf.jpg') center / contain no-repeat;
+      z-index: -1;
       pointer-events: none;
     }
 
@@ -268,7 +270,7 @@
 
     <p class="hint">
       Use o mesmo e-mail e senha do cadastro<br/>
-      no site <strong>arenawolftech.netlify.app</strong>
+      no site <strong>arena-wolftech-app.netlify.app</strong>
     </p>
   </div>
 

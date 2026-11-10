@@ -1,5 +1,6 @@
 import { createClient, RealtimeChannel } from "@supabase/supabase-js";
 import { exec } from "child_process";
+import WebSocket from "ws";
 import { getConfig } from "./config";
 
 export interface AppInfo {
@@ -72,7 +73,7 @@ export async function endCurrentSession(reason: "user" | "system" = "system"): P
 
 export function subscribeToSession(machineId: string, onChange: SessionChangeHandler): () => void {
   const cfg = getConfig();
-  const supabase = createClient(cfg.supabaseUrl, cfg.supabaseKey);
+  const supabase = createClient(cfg.supabaseUrl, cfg.supabaseKey, { realtime: { transport: WebSocket as unknown as typeof globalThis.WebSocket } });
 
   channel = supabase
     .channel(`machine-${machineId}`)
@@ -85,7 +86,7 @@ export function subscribeToSession(machineId: string, onChange: SessionChangeHan
         // Operador iniciou sessão pelo painel → INSERT com status active
         if (payload.eventType === "INSERT" && row?.status === "active" && row.ends_at && row.id && row.user_id) {
           const cfg = getConfig();
-          const supabase = createClient(cfg.supabaseUrl, cfg.supabaseKey);
+          const supabase = createClient(cfg.supabaseUrl, cfg.supabaseKey, { realtime: { transport: WebSocket as unknown as typeof globalThis.WebSocket } });
           const { data: profile } = await supabase
             .from("profiles")
             .select("nickname, credits_minutes")
@@ -127,7 +128,7 @@ let machineChannel: RealtimeChannel | null = null;
 
 export function subscribeToMachineControl(machineId: string, onShutdown: () => void): () => void {
   const cfg = getConfig();
-  const supabase = createClient(cfg.supabaseUrl, cfg.supabaseKey);
+  const supabase = createClient(cfg.supabaseUrl, cfg.supabaseKey, { realtime: { transport: WebSocket as unknown as typeof globalThis.WebSocket } });
 
   machineChannel = supabase
     .channel(`machine-control-${machineId}`)
@@ -138,7 +139,7 @@ export function subscribeToMachineControl(machineId: string, onShutdown: () => v
         const row = payload.new as { shutdown_requested?: boolean } | null;
         if (row?.shutdown_requested === true) {
           // Limpar a flag no banco antes de desligar
-          const admin = createClient(cfg.supabaseUrl, cfg.supabaseKey);
+          const admin = createClient(cfg.supabaseUrl, cfg.supabaseKey, { realtime: { transport: WebSocket as unknown as typeof globalThis.WebSocket } });
           await admin.from("machines").update({ shutdown_requested: false }).eq("id", machineId);
           onShutdown();
           if (process.platform === "win32") {
@@ -164,7 +165,7 @@ export async function loginWithCredentials(
   password: string
 ): Promise<{ ok: boolean; session?: SessionState; error?: string }> {
   const cfg = getConfig();
-  const supabase = createClient(cfg.supabaseUrl, cfg.supabaseKey);
+  const supabase = createClient(cfg.supabaseUrl, cfg.supabaseKey, { realtime: { transport: WebSocket as unknown as typeof globalThis.WebSocket } });
 
   const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
   if (authError || !authData.user) {

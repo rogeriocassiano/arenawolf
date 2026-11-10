@@ -12,7 +12,7 @@ param(
     [Parameter(Mandatory=$true)]
     [string]$SupabaseKey,
     
-    [string]$ApiBaseUrl = "https://arenawolftech.netlify.app",
+    [string]$ApiBaseUrl = "https://arena-wolftech-app.netlify.app",
     [string]$InstallerUrl = "https://github.com/rogeriocassiano/arenawolf/releases/download/v1.0.0/Arena.Wolf.Agent.Setup.1.0.0.exe",
     [string]$InstallPath = "C:\Program Files\Arena Wolf Agent",
     [switch]$WoLEnabled = $false,

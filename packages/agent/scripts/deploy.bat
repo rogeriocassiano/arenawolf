@@ -31,7 +31,7 @@ if "%~3"=="" (
 set MACHINE_ID=%~1
 set SUPABASE_URL=%~2
 set SUPABASE_KEY=%~3
-set API_URL=https://arenawolftech.netlify.app
+set API_URL=https://arena-wolftech-app.netlify.app
 
 echo [INFO] ID da Maquina: %MACHINE_ID%
 echo [INFO] URL Supabase: %SUPABASE_URL%

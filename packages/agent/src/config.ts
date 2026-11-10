@@ -16,7 +16,7 @@ const store = new Store<AgentConfig>({
     machineName: "",
     supabaseUrl: "https://wuobcpjzprvbmogvqiqq.supabase.co",
     supabaseKey: "",
-    apiBaseUrl: "https://arenawolftech.netlify.app",
+    apiBaseUrl: "https://arena-wolftech-app.netlify.app",
     agentKey: "",
   },
 });
@@ -27,7 +27,9 @@ export function getConfig(): AgentConfig {
     machineName: store.get("machineName"),
     supabaseUrl: store.get("supabaseUrl"),
     supabaseKey: store.get("supabaseKey"),
-    apiBaseUrl: store.get("apiBaseUrl"),
+    apiBaseUrl: ["https://arenawolftech.netlify.app", "https://arenawolf.netlify.app"].includes(store.get("apiBaseUrl"))
+      ? "https://arena-wolftech-app.netlify.app"
+      : store.get("apiBaseUrl"),
     agentKey: store.get("agentKey"),
   };
 }
