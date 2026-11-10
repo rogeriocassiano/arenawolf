@@ -47,6 +47,34 @@ describe("POST /api/session/start", () => {
 
   beforeEach(() => jest.clearAllMocks());
 
+  it("validates bearer tokens and allows a user to reach validation for their own session", async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: "u-1" } }, error: null });
+    mockFrom.mockImplementation(() => ({
+      select: () => ({ eq: () => ({ single: async () => ({ data: { role: "user", banned: false } }) }) }),
+    }));
+    const res = await POST(makeRequest({ user_id: "u-1" }, { Authorization: "Bearer valid-token" }));
+    expect(mockGetUser).toHaveBeenCalledWith("valid-token");
+    expect(res.status).toBe(400);
+    expect(mockRpc).not.toHaveBeenCalled();
+  });
+
+  it("rejects bearer users targeting another account", async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: "u-1" } }, error: null });
+    mockFrom.mockImplementation(() => ({
+      select: () => ({ eq: () => ({ single: async () => ({ data: { role: "user", banned: false } }) }) }),
+    }));
+    const res = await POST(makeRequest({ machine_id: "m-1", user_id: "u-2", minutes: 60 }, { Authorization: "Bearer valid-token" }));
+    expect(res.status).toBe(403);
+    expect(mockRpc).not.toHaveBeenCalled();
+  });
+
+  it("rejects invalid bearer tokens", async () => {
+    mockGetUser.mockResolvedValue({ data: { user: null }, error: { message: "invalid" } });
+    const res = await POST(makeRequest({}, { Authorization: "Bearer invalid-token" }));
+    expect(res.status).toBe(401);
+    expect(mockRpc).not.toHaveBeenCalled();
+  });
+
   it("returns 401 when no auth", async () => {
     mockGetUser.mockResolvedValue({ data: { user: null } });
     const req = makeRequest({ machine_id: "m-1", user_id: "u-1", minutes: 60 });

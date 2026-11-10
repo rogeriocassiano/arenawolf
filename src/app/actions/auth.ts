@@ -66,6 +66,12 @@ export async function register(_state: ActionState, formData: FormData): Promise
   });
 
   if (error) {
+    if (error.code === "over_email_send_rate_limit") {
+      return { error: "O serviço de confirmação atingiu o limite de envio de e-mails. Aguarde e tente novamente mais tarde ou fale com o atendimento da Arena." };
+    }
+    if (error.status === 429) {
+      return { error: "Muitas tentativas de cadastro. Aguarde alguns minutos antes de tentar novamente." };
+    }
     if (error.message.includes("already registered")) {
       return { error: "E-mail já cadastrado." };
     }
@@ -81,7 +87,9 @@ export async function register(_state: ActionState, formData: FormData): Promise
     });
   }
 
-  return { success: "Conta criada! Verifique seu e-mail para confirmar o cadastro." };
+  return { success: data.session
+    ? "Conta criada! Você já pode entrar na Arena."
+    : "Conta criada! Verifique seu e-mail para confirmar o cadastro." };
 }
 
 export async function forgotPassword(_state: ActionState, formData: FormData): Promise<ActionState> {

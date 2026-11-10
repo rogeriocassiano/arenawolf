@@ -1,0 +1,4 @@
+project_id = "arenawolf"
+
+[auth.email]
+enable_confirmations = false
