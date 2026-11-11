@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld("agent", {
   submitPin: (pin: string) => ipcRenderer.invoke("submit-pin", pin),
   loginCredentials: (email: string, password: string) => ipcRenderer.invoke("login-credentials", email, password),
   endSession: () => ipcRenderer.invoke("end-session"),
+  adminExit: (email: string, password: string) => ipcRenderer.invoke("admin-exit", email, password),
   fetchApps: () => ipcRenderer.invoke("fetch-apps"),
   launchApp: (exePath: string, exeArgs: string) => ipcRenderer.invoke("launch-app", exePath, exeArgs),
   getConfig: () => ipcRenderer.invoke("get-config"),

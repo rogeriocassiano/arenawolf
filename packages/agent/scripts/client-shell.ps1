@@ -3,7 +3,9 @@ param(
     [ValidateSet('Check', 'Enable', 'Restore')][string]$Mode = 'Check',
     [string]$ExpectedComputerName,
     [string]$TargetUser,
-    [string]$AgentPath
+    [string]$AgentPath,
+    [bool]$BlockUninstall = $true,
+    [string[]]$GameFolders = @()
 )
 
 $ErrorActionPreference = 'Stop'
@@ -35,6 +37,9 @@ if ($Mode -eq 'Enable') {
     $windows = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion'
     if ($windows.EditionID -notlike 'Professional*' -or [int]$windows.CurrentBuildNumber -lt 19041) { throw 'Este procedimento foi preparado para Windows Pro build 19041 ou superior.' }
     if (!$AgentPath -or ![IO.Path]::IsPathRooted($AgentPath) -or $AgentPath.StartsWith('\\')) { throw 'Informe o caminho LOCAL completo do Arena Wolf Agent.exe em AgentPath.' }
+    foreach ($folder in $GameFolders) {
+        if (![IO.Path]::IsPathRooted($folder) -or $folder.StartsWith('\\') -or !(Test-Path -LiteralPath $folder)) { throw "Pasta de jogo invalida: $folder" }
+    }
     $agent = Get-Item -LiteralPath $AgentPath
     if ($agent.Name -ne 'Arena Wolf Agent.exe' -or [version]$agent.VersionInfo.ProductVersion -lt [version]'1.0.3') { throw 'Instale o Arena Wolf Agent 1.0.3 ou superior antes de habilitar.' }
     $AgentPath = $agent.FullName
@@ -66,7 +71,14 @@ try {
                 }
                 $run.Close()
             }
-            $backup = @{ Computer = $env:COMPUTERNAME; SID = $sid; Shell = $shell; RunEntries = $entries }
+            $programsPath = "$hive\Software\Microsoft\Windows\CurrentVersion\Policies\Programs"
+            $explorerPath = "$hive\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer"
+            $backup = @{
+                Computer = $env:COMPUTERNAME; SID = $sid; Shell = $shell; RunEntries = $entries
+                NoProgramsAndFeatures = (Get-ItemProperty -Path $programsPath -Name NoProgramsAndFeatures -ErrorAction SilentlyContinue).NoProgramsAndFeatures
+                NoControlPanel = (Get-ItemProperty -Path $explorerPath -Name NoControlPanel -ErrorAction SilentlyContinue).NoControlPanel
+                BlockUninstall = $BlockUninstall; GameFolders = $GameFolders
+            }
             New-Item -ItemType Directory -Path (Split-Path $backupFile) -Force | Out-Null
             $backup | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $backupFile -Encoding UTF8
         }
@@ -75,6 +87,18 @@ try {
         if (!(Test-Path $systemPath)) { New-Item -Path $systemPath | Out-Null }
         New-ItemProperty -Path $systemPath -Name Shell -Value ('"' + $AgentPath + '" --client-shell') -PropertyType String -Force | Out-Null
         foreach ($entry in $saved.RunEntries) { Remove-ItemProperty -Path $runPath -Name $entry.Name -ErrorAction SilentlyContinue }
+        if ($saved.BlockUninstall) {
+            $programsPath = "$hive\Software\Microsoft\Windows\CurrentVersion\Policies\Programs"
+            $explorerPath = "$hive\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer"
+            if (!(Test-Path $programsPath)) { New-Item -Path $programsPath | Out-Null }
+            if (!(Test-Path $explorerPath)) { New-Item -Path $explorerPath | Out-Null }
+            New-ItemProperty -Path $programsPath -Name NoProgramsAndFeatures -Value 1 -PropertyType DWord -Force | Out-Null
+            New-ItemProperty -Path $explorerPath -Name NoControlPanel -Value 1 -PropertyType DWord -Force | Out-Null
+        }
+        foreach ($folder in @($saved.GameFolders)) {
+            & icacls.exe "$folder" /deny "*$sid`:(OI)(CI)(DE,DC)" /Q | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw "Falha ao proteger pasta: $folder" }
+        }
         Write-Output 'Interface configurada apenas para a conta dos clientes. Nao houve reinicio nem encerramento de programas.'
     } else {
         $saved = Get-Content -LiteralPath $backupFile -Raw | ConvertFrom-Json
@@ -85,6 +109,17 @@ try {
         } else { Remove-ItemProperty -Path $systemPath -Name Shell -ErrorAction SilentlyContinue }
         if (@($saved.RunEntries).Count -gt 0 -and !(Test-Path $runPath)) { New-Item -Path $runPath | Out-Null }
         foreach ($entry in $saved.RunEntries) { New-ItemProperty -Path $runPath -Name $entry.Name -Value $entry.Value -PropertyType $entry.Kind -Force | Out-Null }
+        $programsPath = "$hive\Software\Microsoft\Windows\CurrentVersion\Policies\Programs"
+        $explorerPath = "$hive\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer"
+        if ($null -ne $saved.NoProgramsAndFeatures) {
+            New-ItemProperty -Path $programsPath -Name NoProgramsAndFeatures -Value $saved.NoProgramsAndFeatures -PropertyType DWord -Force | Out-Null
+        } else { Remove-ItemProperty -Path $programsPath -Name NoProgramsAndFeatures -ErrorAction SilentlyContinue }
+        if ($null -ne $saved.NoControlPanel) {
+            New-ItemProperty -Path $explorerPath -Name NoControlPanel -Value $saved.NoControlPanel -PropertyType DWord -Force | Out-Null
+        } else { Remove-ItemProperty -Path $explorerPath -Name NoControlPanel -ErrorAction SilentlyContinue }
+        foreach ($folder in @($saved.GameFolders)) {
+            & icacls.exe "$folder" /remove:d "*$sid" /Q | Out-Null
+        }
         Write-Output 'Interface anterior restaurada. O backup foi preservado. Nao houve reinicio automatico.'
     }
     Write-Output "Backup: $backupFile"

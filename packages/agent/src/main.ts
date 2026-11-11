@@ -38,9 +38,15 @@ let quittingForUpdate = false;
 let osSessionEnding = false;
 let stopUpdates: (() => void) | null = null;
 const releaseUpdate = async () => (await import("./updates")).releasePendingUpdate();
+let staffWindowsAccess = false;
 if (!diagnosticMode && !app.requestSingleInstanceLock()) app.exit(0);
 app.on("second-instance", () => {
   const window = BrowserWindow.getAllWindows()[0];
+  if (staffWindowsAccess && getCurrentSession()) {
+    staffWindowsAccess = false;
+    showActiveSession();
+    return;
+  }
   if (window) {
     if (window.isMinimized()) window.restore();
     window.show();
@@ -322,6 +328,18 @@ ipcMain.handle("launch-app", async (_event: IpcMainInvokeEvent, exePath: string,
 });
 
 // IPC: usuário clica em encerrar na home ou overlay
+ipcMain.handle("admin-exit", async (_event: IpcMainInvokeEvent, email: string, password: string) => {
+  if (!getCurrentSession()) return { ok: false, error: "Sem sessão ativa" };
+  const { adminExitToWindows } = await loadSessionApi();
+  const result = await adminExitToWindows(email, password);
+  if (!result.ok) return result;
+  log("saída administrativa para o Windows autorizada (sessão continua ativa)");
+  staffWindowsAccess = true;
+  destroyOverlay();
+  destroyHomeWindow();
+  return { ok: true };
+});
+
 ipcMain.handle("end-session", async () => {
   const result = await endCurrentSession("user");
   if (!result.ok) return result;

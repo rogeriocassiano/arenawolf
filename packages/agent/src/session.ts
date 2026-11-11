@@ -301,6 +301,18 @@ export async function loginWithCredentials(
   }
 }
 
+export async function adminExitToWindows(email: string, password: string): Promise<{ ok: boolean; error?: string }> {
+  const cfg = getConfig();
+  const supabase = createClient(cfg.supabaseUrl, cfg.supabaseKey, { realtime: { transport: WebSocket as unknown as typeof globalThis.WebSocket } });
+  const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error || !authData.user) return { ok: false, error: "Credenciais inválidas" };
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", authData.user.id).single();
+  await supabase.auth.signOut();
+  return profile?.role === "admin" || profile?.role === "staff"
+    ? { ok: true }
+    : { ok: false, error: "Acesso restrito a administradores" };
+}
+
 export async function fetchMachineApps(): Promise<AppInfo[]> {
   const cfg = getConfig();
   try {

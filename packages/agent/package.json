@@ -1,6 +1,6 @@
 {
   "name": "arena-wolf-agent",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Agente Arena Wolf — LAN House Client para Windows",
   "main": "dist/main.js",
   "scripts": {

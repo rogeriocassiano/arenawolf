@@ -134,6 +134,28 @@
     }
     .confirm-yes { background: rgba(230,57,70,0.2); border-color: rgba(230,57,70,0.5); color: #ef4444; }
     .confirm-no  { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); color: #9ca3af; }
+
+    .admin-btn {
+      margin-top: 0.25rem; width: 100%; padding: 0.3rem 0;
+      background: rgba(29,111,237,0.1); border: 1px solid rgba(91,156,246,0.3);
+      border-radius: 0.5rem; color: #5b9cf6;
+      font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.05em; cursor: pointer; transition: background 0.15s;
+    }
+    .admin-btn:hover { background: rgba(29,111,237,0.25); }
+
+    .admin-row {
+      display: none; flex-direction: column; gap: 0.3rem; margin-top: 0.3rem;
+    }
+    .admin-row.visible { display: flex; }
+    .admin-row input {
+      width: 100%; padding: 0.3rem 0.45rem; border-radius: 0.4rem;
+      border: 1px solid rgba(91,156,246,0.3); background: rgba(255,255,255,0.06);
+      color: #f0f4ff; font-family: 'Rajdhani', sans-serif; font-size: 0.75rem;
+      outline: none;
+    }
+    .admin-row input:focus { border-color: #5b9cf6; }
+    .admin-error { font-size: 0.65rem; color: #ef4444; text-align: center; }
   </style>
 </head>
 <body>
@@ -154,6 +176,16 @@
       <div class="confirm-actions">
         <button class="confirm-no" id="confirmNo">Cancelar</button>
         <button class="confirm-yes" id="confirmYes">Encerrar</button>
+      </div>
+    </div>
+    <button class="admin-btn" id="adminBtn">Sair para o Windows (admin)</button>
+    <div class="admin-row" id="adminRow">
+      <input type="email" id="adminEmail" placeholder="E-mail do administrador" autocomplete="off" />
+      <input type="password" id="adminPass" placeholder="Senha" />
+      <span class="admin-error" id="adminError"></span>
+      <div class="confirm-actions">
+        <button class="confirm-no" id="adminCancel">Cancelar</button>
+        <button class="confirm-yes" style="background:rgba(29,111,237,0.2);border-color:rgba(91,156,246,0.5);color:#5b9cf6;" id="adminGo">Sair</button>
       </div>
     </div>
   </div>
@@ -199,6 +231,34 @@
         if (!result.ok) document.querySelector('.confirm-text').textContent = result.error || 'Não foi possível encerrar. Tente novamente.';
       } catch {
         document.querySelector('.confirm-text').textContent = 'Falha de conexão. Tente novamente.';
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById('adminBtn').addEventListener('click', () => {
+      document.getElementById('adminRow').classList.add('visible');
+      document.getElementById('adminBtn').style.display = 'none';
+      document.getElementById('adminEmail').focus();
+    });
+    document.getElementById('adminCancel').addEventListener('click', () => {
+      document.getElementById('adminRow').classList.remove('visible');
+      document.getElementById('adminError').textContent = '';
+      document.getElementById('adminBtn').style.display = 'block';
+    });
+    document.getElementById('adminGo').addEventListener('click', async () => {
+      const button = document.getElementById('adminGo');
+      const errEl = document.getElementById('adminError');
+      errEl.textContent = '';
+      button.disabled = true;
+      try {
+        const result = await window.agent.adminExit(
+          document.getElementById('adminEmail').value.trim(),
+          document.getElementById('adminPass').value
+        );
+        if (!result.ok) errEl.textContent = result.error || 'Acesso negado.';
+      } catch {
+        errEl.textContent = 'Falha de conexão. Tente novamente.';
       } finally {
         button.disabled = false;
       }
