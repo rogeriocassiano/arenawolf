@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { issueAgentUpdateToken } from "@/lib/agent-updates";
 
 function generatePin(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -84,25 +85,27 @@ export async function PUT(request: NextRequest) {
   try {
     // Agente usa service role key no header
     const authHeader = request.headers.get("x-agent-key");
-    if (authHeader !== process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    if (!authHeader || authHeader !== process.env.SUPABASE_SERVICE_ROLE_KEY) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
-    const { pin, machine_id } = await request.json();
+    const { pin, machine_id, instance_id } = await request.json();
     if (!pin || !machine_id) {
       return NextResponse.json({ error: "pin e machine_id são obrigatórios" }, { status: 400 });
     }
+    if (instance_id && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(instance_id)) {
+      return NextResponse.json({ error: "Instância inválida" }, { status: 400 });
+    }
 
-    const supabase = await createClient();
-    const { data, error } = await supabase.rpc("validate_pin_and_start", {
-      p_pin: pin,
-      p_machine_id: machine_id,
-    });
+    const supabase = await createAdminClient();
+    const { data, error } = instance_id
+      ? await supabase.rpc("validate_pin_and_start_agent", { p_pin: pin, p_machine_id: machine_id, p_instance_id: instance_id })
+      : await supabase.rpc("validate_pin_and_start", { p_pin: pin, p_machine_id: machine_id });
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     if (data?.error) return NextResponse.json({ error: data.error }, { status: 400 });
 
-    return NextResponse.json(data);
+    return NextResponse.json({ ...data, agent_update_token: instance_id ? issueAgentUpdateToken(machine_id) : undefined });
   } catch (err) {
     console.error("[session/pin/validate]", err);
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });

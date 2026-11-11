@@ -7,6 +7,9 @@ interface AgentConfig {
   supabaseKey: string;
   apiBaseUrl: string;
   agentKey: string;
+  updateToken: string;
+  updateLeaseId: string;
+  resumeClientShellOnce: boolean;
 }
 
 const store = new Store<AgentConfig>({
@@ -18,6 +21,9 @@ const store = new Store<AgentConfig>({
     supabaseKey: "",
     apiBaseUrl: "https://arena-wolftech-app.netlify.app",
     agentKey: "",
+    updateToken: "",
+    updateLeaseId: "",
+    resumeClientShellOnce: false,
   },
 });
 
@@ -31,6 +37,9 @@ export function getConfig(): AgentConfig {
       ? "https://arena-wolftech-app.netlify.app"
       : store.get("apiBaseUrl"),
     agentKey: store.get("agentKey"),
+    updateToken: store.get("updateToken") ?? "",
+    updateLeaseId: store.get("updateLeaseId") ?? "",
+    resumeClientShellOnce: store.get("resumeClientShellOnce") ?? false,
   };
 }
 

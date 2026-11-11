@@ -1,6 +1,6 @@
 {
   "name": "arena-wolf-agent",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Agente Arena Wolf — LAN House Client para Windows",
   "main": "dist/main.js",
   "scripts": {
@@ -39,11 +39,20 @@
         "from": "assets/",
         "to": "assets/"
       }
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "rogeriocassiano",
+        "repo": "arenawolf",
+        "releaseType": "release"
+      }
     ]
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
     "electron-store": "^8.1.0",
+    "electron-updater": "6.8.11",
     "node-windows": "^1.0.0-beta.8",
     "ws": "^8.18.3"
   },

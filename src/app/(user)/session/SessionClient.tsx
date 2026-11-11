@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn, formatMinutes } from "@/lib/utils";
 import {
@@ -56,6 +57,8 @@ export function SessionClient({ profile, machines, activeSession }: SessionClien
   const [error, setError] = useState<string | null>(null);
   const [connected, setConnected] = useState(false);
   const [confirmEnd, setConfirmEnd] = useState(false);
+  const activeId = useRef(activeSession?.id);
+  const router = useRouter();
 
   const supabase = createClient();
 
@@ -70,12 +73,13 @@ export function SessionClient({ profile, machines, activeSession }: SessionClien
       }, () => refreshSession())
       .on("postgres_changes", { event: "*", schema: "public", table: "machines" }, () => refreshMachines())
       .subscribe(s => setConnected(s === "SUBSCRIBED"));
-    return () => { supabase.removeChannel(channel); };
+    const poll = setInterval(() => { void refreshSession(); void refreshMachines(); }, 30000);
+    return () => { clearInterval(poll); supabase.removeChannel(channel); };
   }, [profile?.id]);
 
   async function refreshSession() {
     if (!profile) return;
-    const { data } = await supabase
+    const { data, error: sessionError } = await supabase
       .from("sessions")
       .select("*, machine:machines(id, name)")
       .eq("user_id", profile.id)
@@ -83,6 +87,9 @@ export function SessionClient({ profile, machines, activeSession }: SessionClien
       .order("started_at", { ascending: false })
       .limit(1)
       .maybeSingle();
+    if (sessionError) return;
+    if (activeId.current && !data) router.refresh();
+    activeId.current = data?.id;
     setSession(data);
   }
 
@@ -115,16 +122,26 @@ export function SessionClient({ profile, machines, activeSession }: SessionClien
   async function endSession() {
     if (!session) return;
     setLoading(true);
+    setError(null);
     try {
-      await fetch("/api/session/end", {
+      const response = await fetch("/api/session/end", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: session.id, ended_by: "user" }),
       });
+      const data = await response.json();
+      if (!response.ok || data.success !== true) {
+        setError(data.error ?? "O servidor não confirmou o encerramento. Tente novamente.");
+        return;
+      }
+      activeId.current = undefined;
       setSession(null);
       setPin(null);
       setConfirmEnd(false);
       await refreshMachines();
+      router.refresh();
+    } catch {
+      setError("Não foi possível confirmar o encerramento. Verifique a conexão e tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -168,9 +185,10 @@ export function SessionClient({ profile, machines, activeSession }: SessionClien
             <Countdown endsAt={session.ends_at} />
           </div>
 
+          {error && <div role="alert" className="text-sm text-wolf-red">{error}</div>}
           {confirmEnd ? (
             <div className="flex flex-col gap-3 p-4 rounded-xl bg-wolf-red/10 border border-wolf-red/30">
-              <p className="text-sm text-wolf-red font-semibold text-center">Tem certeza? O tempo não utilizado não será reembolsado.</p>
+              <p className="text-sm text-wolf-red font-semibold text-center">Será descontado apenas o tempo usado, por minuto iniciado. O saldo restante fica disponível para o próximo login.</p>
               <div className="flex gap-2">
                 <Button variant="outline" className="flex-1" onClick={() => setConfirmEnd(false)} disabled={loading}>Cancelar</Button>
                 <Button className="flex-1 gap-2 bg-wolf-red hover:bg-wolf-red/80 border-wolf-red/50" loading={loading} onClick={endSession}>

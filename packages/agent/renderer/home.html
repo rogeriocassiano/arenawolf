@@ -5,7 +5,6 @@
   <title>Arena Wolf — Launcher</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap');
 
     :root {
       --wolf-bg: #0a0c10;
@@ -488,8 +487,16 @@
       document.getElementById('endModal').classList.remove('visible');
     });
     document.getElementById('modalConfirm').addEventListener('click', async () => {
-      document.getElementById('endModal').classList.remove('visible');
-      await window.agent.endSession();
+      const button = document.getElementById('modalConfirm');
+      button.disabled = true;
+      try {
+        const result = await window.agent.endSession();
+        if (!result.ok) document.querySelector('.modal-body').textContent = result.error || 'Não foi possível encerrar. Tente novamente.';
+      } catch {
+        document.querySelector('.modal-body').textContent = 'Falha de conexão. Tente novamente.';
+      } finally {
+        button.disabled = false;
+      }
     });
   </script>
 </body>
